@@ -11,8 +11,9 @@ import { searchUserInWorkspace } from "@/features/members/services";
 import { getImageString } from "@/features/workspaces/services";
 
 import { createProjectSchema, updateProjectSchema } from "../projects.schemas";
-import { IAnalytics, IProject } from "../projects.types";
+import { IProject } from "../projects.types";
 import { ITask, STATUS } from "@/features/tasks/tasks.types";
+import { IAnalytics } from "@/types/global.types";
 
 const app = new Hono()
 

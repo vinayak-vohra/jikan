@@ -22,7 +22,7 @@ import { IUser } from "@/features/auth/auth.types";
 import { createAdminClient } from "@/lib/appwrite";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { ITask, STATUS } from "@/features/tasks/tasks.types";
-import { IAnalytics } from "@/features/projects/projects.types";
+import { IAnalytics } from "@/types/global.types";
 // import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 
 const app = new Hono()
