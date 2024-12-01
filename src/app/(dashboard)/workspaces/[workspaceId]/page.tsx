@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/features/auth/services";
 import { getWorkspaceById } from "@/features/workspaces/services";
+import WorkspaceIdClient from "./client";
 
 interface WorkspaceIdProps {
   params: {
@@ -19,7 +20,5 @@ export default async function WorkspaceIdPage(props: WorkspaceIdProps) {
 
   if (!currentWorkspace) redirect("/");
 
-  return (
-    <div className="p-4 m-4 w-full text-center">Analytics coming soon...</div>
-  );
+  return <WorkspaceIdClient />;
 }

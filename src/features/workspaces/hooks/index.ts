@@ -13,3 +13,4 @@ export * from "./use-workspace-modal";
 
 export * from "./use-fetch-workspace-info";
 export * from "./use-fetch-workspace-by-id";
+export * from "./use-fetch-workspace-analytics";
