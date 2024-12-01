@@ -3,15 +3,19 @@
 import { PencilIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 
+import Analytics, { AnalyticsSkeleton } from "@/components/analytics";
 import ErrorPage from "@/components/error";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import ProjectAvatar from "@/features/projects/components/project-avatar";
-import { useFetchProjectById, useProjectId } from "@/features/projects/hooks";
+import {
+  useFetchProjectAnalytics,
+  useFetchProjectById,
+  useProjectId,
+} from "@/features/projects/hooks";
 import TaskViewSwitcher from "@/features/tasks/components/task-view-switcher";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
 import { useCreateTaskModal } from "@/features/tasks/hooks";
-import ProjectAnalytics from "@/features/projects/components/project-analytics";
 
 export default function ProjectIdClient() {
   const projectId = useProjectId();
@@ -50,4 +54,15 @@ export default function ProjectIdClient() {
       <TaskViewSwitcher hideProjectFilter />
     </div>
   );
+}
+
+function ProjectAnalytics() {
+  const projectId = useProjectId();
+  const { data: analytics, isLoading: isLoadingAnalytics } =
+    useFetchProjectAnalytics(projectId);
+
+  if (isLoadingAnalytics) return <AnalyticsSkeleton />;
+  if (!analytics) return <div>No analytics data</div>;
+
+  return <Analytics data={analytics} />;
 }
