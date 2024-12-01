@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { IProject } from "@/features/projects/projects.types";
-import { useUpdateProject } from "@/features/projects/hooks/use-update-project";
+import { useUpdateProject } from "@/features/projects/hooks";
 import { updateProjectSchema } from "@/features/projects/projects.schemas";
 
 interface Props {

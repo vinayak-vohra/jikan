@@ -10,3 +10,6 @@ export * from "./use-reset-invite-code";
 
 export * from "./use-workspace-id";
 export * from "./use-workspace-modal";
+
+export * from "./use-fetch-workspace-info";
+export * from "./use-fetch-workspace-by-id";

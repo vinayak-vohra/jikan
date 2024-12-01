@@ -8,7 +8,7 @@ import {
   WorkspaceInviteCodeCard,
 } from "@/features/workspaces/components/cards";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
-import { useFetchWorkspaceById } from "@/features/workspaces/hooks/use-fetch-workspace-by-id";
+import { useFetchWorkspaceById } from "@/features/workspaces/hooks";
 
 export default function WorkspaceSettingsClient() {
   const workspaceId = useWorkspaceId();

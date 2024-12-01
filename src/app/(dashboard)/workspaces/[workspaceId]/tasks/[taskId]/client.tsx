@@ -5,8 +5,7 @@ import Loader from "@/components/loader";
 import TaskBreadCrumbs from "@/features/tasks/components/task-breadcrumbs";
 import TaskDescription from "@/features/tasks/components/task-description";
 import TaskOverview from "@/features/tasks/components/task-overview";
-import { useFetchTaskById } from "@/features/tasks/hooks/use-fetch-task-by-id";
-import { useTaskId } from "@/features/tasks/hooks/use-task-id";
+import { useFetchTaskById, useTaskId } from "@/features/tasks/hooks";
 
 export default function TaskIdClient() {
   const taskId = useTaskId();

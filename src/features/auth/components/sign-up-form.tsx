@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
 import { registerSchema } from "@/features/auth/auth.schemas";
-import { useRegister } from "@/features/auth/hooks/use-register";
+import { useRegister } from "@/features/auth/hooks";
 
 export default function SignupForm() {
   const { mutate, isPending } = useRegister();

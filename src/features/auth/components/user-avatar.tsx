@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
-import { useCurrent, useLogout } from "@/features/auth/hooks/";
+import { useCurrent, useLogout } from "@/features/auth/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UserAvatar() {

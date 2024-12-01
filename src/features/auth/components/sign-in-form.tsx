@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-import { useLogin } from "@/features/auth/hooks/use-login";
+import { useLogin } from "@/features/auth/hooks";
 import { loginSchema } from "@/features/auth/auth.schemas";
 
 export default function SignInForm() {

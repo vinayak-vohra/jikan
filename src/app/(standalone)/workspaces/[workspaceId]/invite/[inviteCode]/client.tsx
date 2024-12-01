@@ -4,7 +4,7 @@ import ErrorPage from "@/components/error";
 import Loader from "@/components/loader";
 import { WorkspaceJoinCard } from "@/features/workspaces/components/cards";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
-import { useFetchWorkspaceInfo } from "@/features/workspaces/hooks/use-fetch-workspace-info";
+import { useFetchWorkspaceInfo } from "@/features/workspaces/hooks";
 
 export default function InviteClient() {
   const workspaceId = useWorkspaceId();
