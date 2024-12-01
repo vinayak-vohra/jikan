@@ -1,22 +1,19 @@
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import AnalayticsCard from "./analytics-card";
-import { useFetchProjectAnalytics, useProjectId } from "../hooks";
-import Loader from "@/components/loader";
+import { IAnalytics } from "@/types/global.types";
+import { AnalyticsCard } from "./analytics-card";
+import { AnalyticsSkeleton } from "./analytics-skeleton";
 
-export default function ProjectAnalytics() {
-  const projectId = useProjectId();
-  const { data: analytics, isLoading: isLoadingAnalytics } =
-    useFetchProjectAnalytics(projectId);
+interface AnalyticsProps {
+  data: IAnalytics;
+}
 
-  if (isLoadingAnalytics) return <Loader />;
-  if (!analytics) return <div>No analytics data</div>;
-
+export default function Analytics({ data }: AnalyticsProps) {
   return (
     <ScrollArea className="border rounded-lg w-full whitespace-nowrap shrink-0">
       <div className="w-full flex flex-row gap-2">
-        {Object.entries(analytics).map(([key, value]) => (
+        {Object.entries(data).map(([key, value]) => (
           <div key={key} className="flex items-center flex-1">
-            <AnalayticsCard
+            <AnalyticsCard
               title={key}
               value={value.count}
               changeValue={value.difference}
@@ -29,3 +26,5 @@ export default function ProjectAnalytics() {
     </ScrollArea>
   );
 }
+
+export { AnalyticsCard, AnalyticsSkeleton };

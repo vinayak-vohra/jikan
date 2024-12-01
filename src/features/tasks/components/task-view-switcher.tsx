@@ -37,11 +37,12 @@ export default function TaskViewSwitcher(props: TaskViewSwitcherProps) {
   const { mutate: bulkUpdateTasks } = useBulkUpdateTask();
   const { data: user } = useCurrent();
 
-  const [filters, setFilters] = useTaskFilters();
+  const [filters] = useTaskFilters();
 
   const { data: tasks, isLoading } = useFetchTasks({
     workspaceId,
     ...convertNullToUndefined(filters),
+    projectId: filters.projectId || projectId,
   });
 
   const onKanbanChange = useCallback(
@@ -50,24 +51,6 @@ export default function TaskViewSwitcher(props: TaskViewSwitcherProps) {
     },
     [bulkUpdateTasks]
   );
-
-  // TODO: Fix Re-Render Issue
-  // useEffect(() => {
-  //   if (props.hideAssigneeFilter && user) {
-  //     setFilters({
-  //       ...filters,
-  //       assigneeId: user.$id,
-  //     });
-  //   }
-
-  //   if (props.hideProjectFilter && projectId) {
-  //     setFilters({
-  //       ...filters,
-  //       projectId,
-  //     });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props, user, projectId]);
 
   return (
     <Tabs
@@ -105,7 +88,7 @@ export default function TaskViewSwitcher(props: TaskViewSwitcherProps) {
         />
         <Separator />
         <div className="flex flex-col min-h-40 px-2">
-          {isLoading && <Loader className="size-5 animate-spin mx-auto" />}
+          {isLoading && <Loader className="size-5 animate-spin my-10 mx-auto" />}
           {!isLoading && (
             <>
               <TabsContent value="table">

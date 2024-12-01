@@ -1,25 +1,20 @@
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { cn, toTitleCase } from "@/lib/utils";
-import { FaCaretUp, FaCaretDown } from "react-icons/fa";
 
-interface AnalayticsCardProps {
+interface AnalyticsCardProps {
   title: string;
   value: number;
   hasIncreased: boolean;
   changeValue: number;
 }
 
-export default function AnalayticsCard({
+export function AnalyticsCard({
   title,
   value,
   hasIncreased,
   changeValue,
-}: AnalayticsCardProps) {
+}: AnalyticsCardProps) {
   const Icon = hasIncreased ? FaCaretUp : FaCaretDown;
   const textColor = hasIncreased ? "text-green-500" : "text-red-500";
 
