@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { membersApi } from "@/lib/rpc";
+import { api } from "@/lib/rpc";
 
 export function useFetchMembers(workspaceId: string) {
   const query = useQuery({
     queryKey: ["members", workspaceId],
     queryFn: async () => {
-      const response = await membersApi.$get({ query: { workspaceId } });
+      const response = await api["members"]["$get"]({ query: { workspaceId } });
 
       if (!response.ok) throw new Error("Failed to fetch members");
 

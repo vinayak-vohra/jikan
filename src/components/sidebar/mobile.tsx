@@ -4,7 +4,7 @@ import { MenuIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import Sidebar from "./sidebar";
+import Sidebar from ".";
 import { Button } from "../ui/button";
 import {
   Sheet,

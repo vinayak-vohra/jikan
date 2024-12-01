@@ -1,4 +1,5 @@
 import { Models } from "node-appwrite";
+import { IUser } from "../auth/auth.types";
 
 /**
  * Represents a workspace document in the database.
@@ -16,4 +17,9 @@ export interface IWorkspace extends Models.Document {
   name: string;
   image: string;
   inviteCode: string;
+}
+
+export interface IWorkspacePublicInfo
+  extends Pick<IWorkspace, "name" | "image"> {
+  admin: Pick<IUser, "name">;
 }

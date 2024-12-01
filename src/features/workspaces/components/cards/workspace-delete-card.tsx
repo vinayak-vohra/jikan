@@ -17,7 +17,7 @@ const dialogInfo: IConfirmationDialog = {
       Are you sure you want to delete this workspace ?
       <br />
       <br />
-      This action is irreversible, and all associated data, including tasks,
+      This action is irreversible, and all associated data, including projects,
       members, and settings, will be permanently removed.
     </span>
   ),

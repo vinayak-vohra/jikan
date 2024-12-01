@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 interface ProjectAvatarProps {
   name: string;
   image?: string;
-  classname?: string;
+  className?: string;
   size?: number;
 }
 export default function ProjectAvatar({
   image,
   name,
-  classname,
+  className,
   size = 8,
 }: ProjectAvatarProps) {
   if (image)
@@ -22,15 +22,15 @@ export default function ProjectAvatar({
         className={cn(
           "relative rounded-md overflow-hidden",
           `size-${size}`,
-          classname
+          className
         )}
       >
         <Image src={image} alt={name} fill className="object-cover" />
       </div>
     );
   return (
-    <Avatar className={cn("rounded-md", `size-${size}`, classname)}>
-      <AvatarFallback className="text-white bg-blue-600 capitalize text-sm rounded-md">
+    <Avatar className={cn("rounded-md", `size-${size}`, className)}>
+      <AvatarFallback className="text-white bg-blue-600 capitalize rounded-md">
         {name[0]}
       </AvatarFallback>
     </Avatar>

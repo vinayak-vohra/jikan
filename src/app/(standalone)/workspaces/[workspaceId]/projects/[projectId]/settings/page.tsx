@@ -1,3 +1,11 @@
+import { getCurrentUser } from "@/features/auth/services";
+import { redirect } from "next/navigation";
+import ProjectSettingsClient from "./client";
+
+
 export default async function ProjectSettingsPage() {
-  return <div>Project Settings Page</div>;
+  const user = await getCurrentUser();
+  if (!user) redirect("/sign-in");
+
+  return <ProjectSettingsClient />;
 }

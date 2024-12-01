@@ -53,8 +53,8 @@ export default function WorkspaceSwitcher() {
           </TooltipContent>
         </Tooltip>
       </div>
-      <Select onValueChange={onSelect} value={currentWorkspaceId}>
-        <SelectTrigger className="w-full bg-accent font-medium px-3">
+      <Select onValueChange={onSelect} value={currentWorkspaceId} >
+        <SelectTrigger className="w-full bg-accent font-medium px-3 h-12">
           <SelectValue placeholder="No Workspace selected" />
         </SelectTrigger>
         <SelectContent>

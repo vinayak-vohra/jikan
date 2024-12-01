@@ -3,11 +3,11 @@ import { InferRequestType, InferResponseType } from "hono";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-import { authApi } from "@/lib/rpc";
 import { logError } from "@/lib/utils";
+import { api } from "@/lib/rpc";
 
-type RequestType = InferRequestType<typeof authApi.login.$post>;
-type ResponseType = InferResponseType<typeof authApi.login.$post>;
+type RequestType = InferRequestType<typeof api["auth"]["login"]["$post"]>;
+type ResponseType = InferResponseType<typeof api["auth"]["login"]["$post"]>;
 
 /**
  * Custom hook for handling user login using React Query's mutation.
@@ -23,7 +23,7 @@ export function useLogin() {
 
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async ({ json }) => {
-      const response = await authApi.login.$post({ json });
+      const response = await api["auth"]["login"]["$post"]({ json });
 
       if (!response.ok) throw new Error(response.statusText);
 

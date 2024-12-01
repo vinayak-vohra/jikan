@@ -3,10 +3,10 @@ import { InferResponseType } from "hono";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { authApi } from "@/lib/rpc";
+import { api } from "@/lib/rpc";
 import { logError } from "@/lib/utils";
 
-type ResponseType = InferResponseType<typeof authApi.logout.$post>;
+type ResponseType = InferResponseType<(typeof api)["auth"]["logout"]["$post"]>;
 
 export const useLogout = () => {
   const qc = useQueryClient();
@@ -14,7 +14,7 @@ export const useLogout = () => {
 
   const mutation = useMutation<ResponseType, Error>({
     mutationFn: async () => {
-      const response = await authApi.logout.$post();
+      const response = await api["auth"]["logout"]["$post"]();
 
       if (!response.ok) throw new Error("Failed to logout");
 

@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(dashboard)/workspaces/[workspaceId]", "src/app/(standalone)/workspaces/[workspaceId]/settings"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(dashboard)/workspaces/[workspaceId]", "src/app/(dashboard)/workspaces/[workspaceId]/settings"],
   "exclude": ["node_modules"]
 }

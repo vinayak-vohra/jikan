@@ -128,6 +128,7 @@ export default function CreateWorkpaceForm(props: CreateWorkpaceFormProps) {
                         </AvatarFallback>
                       </Avatar>
                     )}
+                    <FormMessage />
                     <div className="flex flex-col">
                       <p className="text-sm">Workspace Icon</p>
                       <p className="text-xs text-muted-foreground">

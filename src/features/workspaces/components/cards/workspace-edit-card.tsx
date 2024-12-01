@@ -19,9 +19,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useUpdateWorkspace } from "@/features/workspaces/hooks";
-import { updateWorkSpaceSchema } from "@/features/workspaces/workspaces.schemas";
 import { IWorkspace } from "@/features/workspaces/workspaces.types";
+import { useUpdateWorkspace } from "../../hooks";
+import { updateWorkSpaceSchema } from "../../workspaces.schemas";
 
 interface Props {
   workspace: IWorkspace;
@@ -41,17 +41,10 @@ export function WorkspaceEditCard({ workspace }: Props) {
   });
 
   const onSubmit = ({ name, image }: z.infer<typeof updateWorkSpaceSchema>) => {
-    updateWorkspace(
-      {
-        form: { name, image: image ?? "" },
-        param: { workspaceId: workspace.$id },
-      },
-      {
-        onSuccess: ({ data }) => {
-          form.reset();
-        },
-      }
-    );
+    updateWorkspace({
+      form: { name, image: image ?? "" },
+      param: { workspaceId: workspace.$id },
+    });
   };
 
   const fileUploadRef = useRef<HTMLInputElement>(null);
@@ -64,7 +57,7 @@ export function WorkspaceEditCard({ workspace }: Props) {
   };
 
   const handleImageReset = (fieldOnChange: (...ev: any[]) => void) => {
-    fieldOnChange(null);
+    fieldOnChange("");
     if (fileUploadRef.current) {
       fileUploadRef.current.value = "";
     }
@@ -163,6 +156,7 @@ export function WorkspaceEditCard({ workspace }: Props) {
                             Clear
                           </Button>
                         )}
+                        <FormMessage />
                       </div>
                     </div>
                   </div>

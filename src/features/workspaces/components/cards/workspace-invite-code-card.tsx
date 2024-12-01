@@ -68,7 +68,7 @@ export function WorkspaceInviteCodeCard({ inviteCode }: InviteCodeCardProps) {
   };
 
   // Invite URL
-  const inviteURL = `${window.location.origin}/workspaces/${workspaceId}/invite/${inviteCode}`;
+  const inviteURL = `${window?.location.origin}/workspaces/${workspaceId}/invite/${inviteCode}`;
 
   return (
     <>

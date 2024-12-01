@@ -22,3 +22,5 @@ export interface IMember extends Models.Document {
   workspaceId: string;
   role: MemberRoles;
 }
+
+export type MemberOptions = Pick<IMember, "$id" | "name">;

@@ -19,5 +19,7 @@ export default async function WorkspaceIdPage(props: WorkspaceIdProps) {
 
   if (!currentWorkspace) redirect("/");
 
-  return <div>{currentWorkspace.name}</div>;
+  return (
+    <div className="p-4 m-4 w-full text-center">Analytics coming soon...</div>
+  );
 }

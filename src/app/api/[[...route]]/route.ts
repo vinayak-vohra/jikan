@@ -5,6 +5,7 @@ import auth from "@/features/auth/server/auth.controller";
 import members from "@/features/members/server/members.controller";
 import projects from "@/features/projects/server/projects.controller";
 import workspaces from "@/features/workspaces/server/workspaces.controller";
+import tasks from "@/features/tasks/server/tasks.controller";
 
 const app = new Hono().basePath("/api");
 
@@ -21,7 +22,10 @@ const routes = app
   .route("/workspaces", workspaces)
 
   // user projects
-  .route("/projects", projects);
+  .route("/projects", projects)
+
+  // tasks
+  .route("/tasks", tasks);
 
 export const GET = handle(app);
 export const POST = handle(app);

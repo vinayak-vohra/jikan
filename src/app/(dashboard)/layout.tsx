@@ -1,7 +1,10 @@
+import Navbar from "@/components/navbar";
+import Sidebar from "@/components/sidebar";
+
 import CreateProjectModal from "@/features/projects/components/create-project-modal";
+import CreateTaskModal from "@/features/tasks/components/create-task-modal";
+import EditTaskModal from "@/features/tasks/components/edit-task-modal";
 import CreateWorkspaceModal from "@/features/workspaces/components/create-workspace-modal";
-import Navbar from "@/components/navbar/navbar";
-import Sidebar from "@/components/sidebar/sidebar";
 import { PropsWithChildren } from "@/types/global.types";
 
 export default function DashboardLayout(props: PropsWithChildren) {
@@ -9,15 +12,17 @@ export default function DashboardLayout(props: PropsWithChildren) {
     <div className="bg-secondary min-h-dvh">
       <CreateWorkspaceModal />
       <CreateProjectModal />
-      <div className="flex w-full h-dvh">
+      <CreateTaskModal />
+      <EditTaskModal />
+      <div className="flex w-full min-h-dvh">
         {/* Sidebar */}
-        <div className="fixed left-0 top-0 hidden lg:block lg:w-[264px] h-dvh">
+        <div className="fixed left-0 top-0 hidden lg:block lg:w-80 h-dvh">
           <Sidebar />
         </div>
-        <div className="lg:pl-[264px] w-full">
-          <div className="mx-auto max-w-screen-2xl flex flex-col h-dvh">
+        <div className="lg:pl-80 w-full">
+          <div className="mx-auto max-w-screen-2xl flex flex-col min-h-dvh">
             <Navbar />
-            <main className="h-full px-6 py-3 flex flex-col">
+            <main className="flex flex-col items-center justify-center py-2 h-full">
               {props.children}
             </main>
           </div>

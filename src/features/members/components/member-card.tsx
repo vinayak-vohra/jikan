@@ -1,16 +1,16 @@
 import { IMember, MemberRoles } from "@/features/members/members.types";
-import MemberAvatar from "../../features/members/components/member-avatar";
-import { Badge } from "../ui/badge";
+import { Loader2, MoreVerticalIcon, TrashIcon, UserCogIcon, UserMinusIcon } from "lucide-react";
+import { useDeleteMember, useUpdateMember } from "@/features/members/hooks";
+import { useConfirmation } from "@/hooks/use-confirmation";
+import MemberAvatar from "./member-avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { Loader2, MoreVerticalIcon } from "lucide-react";
-import { useDeleteMember, useUpdateMember } from "@/features/members/hooks";
-import { useConfirmation } from "@/hooks/use-confirmation";
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 type MemberCardProps = { member: IMember };
 
@@ -19,8 +19,19 @@ export function MemberCard({ member }: MemberCardProps) {
   const { mutate: updateMember, isPending: isUpdating } = useUpdateMember();
   const { mutate: deleteMember, isPending: isDeleting } = useDeleteMember();
   const [ConfirmationDialog, confirmDelete] = useConfirmation({
-    title: "Remove Member",
-    description: <span></span>,
+    title: `Remove ${member.name}`,
+    description: (
+      <span>
+        Are you sure you want to remove&nbsp;
+        <span className="font-bold underline">{member.name}</span> from the
+        workspace?
+        <br />
+        <br />
+        This action cannot be undone, and&nbsp;
+        <span className="font-bold underline">{member.name}</span> will lose all
+        access to workspace resources.
+      </span>
+    ),
     variant: "destructive",
   });
 
@@ -58,26 +69,32 @@ export function MemberCard({ member }: MemberCardProps) {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               disabled={isDeleting || isUpdating}
             >
               {isDeleting || isUpdating ? (
-                <Loader2 className="size-5 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
               ) : (
-                <MoreVerticalIcon className="size-5" />
+                <MoreVerticalIcon className="size-4" />
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" side="right" className="w-48">
+          <DropdownMenuContent align="end" side="bottom" className="w-48">
             <DropdownMenuItem onClick={handleUpdate}>
-              {isAdmin ? "Remove Admin" : "Make Admin"}
+              {isAdmin ? (
+                <UserMinusIcon className="size-4 mr-2" />
+              ) : (
+                <UserCogIcon className="size-4 mr-2" />
+              )}
+              {isAdmin ? "Remove as Admin" : "Make as Admin"}
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive"
               onClick={handleDelete}
             >
-              Remove from workspace
+              <TrashIcon className="size-4 mr-2" />
+              Remove User
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

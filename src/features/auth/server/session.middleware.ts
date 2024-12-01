@@ -15,14 +15,16 @@ import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 
 import { cookie } from "../auth.cookies";
+import { ERRORS } from "@/constants";
+import { IUser } from "../auth.types";
 
-type SessionContext = {
+export type SessionContext = {
   Variables: {
     account: AccountType;
     databases: DatabasesType;
     storage: StorageType;
     users: UsersType;
-    user: Models.User<Models.Preferences>;
+    user: IUser;
   };
 };
 
@@ -35,7 +37,7 @@ export const sessionMiddleware = createMiddleware<SessionContext>(
 
     const session = getCookie(c, cookie.SESSION);
 
-    if (!session) return c.json({ error: "Unauthorized" }, 401);
+    if (!session) return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
 
     client.setSession(session);
 

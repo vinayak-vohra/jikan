@@ -9,12 +9,18 @@ import {
 } from "../workspaces.schemas";
 import { getImageString } from "../services";
 
-import { COLLECTIONS, DATABASE_ID } from "@/constants";
+import { COLLECTIONS, DATABASE_ID, ERRORS } from "@/constants";
 import { sessionMiddleware } from "@/features/auth/server/session.middleware";
 import { searchUserInWorkspace } from "@/features/members/services/search-user-in-workspace";
 import { MemberRoles } from "@/features/members/members.types";
-import { IWorkspace } from "@/features/workspaces/workspaces.types";
+import {
+  IWorkspace,
+  IWorkspacePublicInfo,
+} from "@/features/workspaces/workspaces.types";
 import { z } from "zod";
+import { IUser } from "@/features/auth/auth.types";
+import { createAdminClient } from "@/lib/appwrite";
+import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 
 const app = new Hono()
 
@@ -89,6 +95,59 @@ const app = new Hono()
     return c.json({ data: workspaces });
   })
 
+  // Fetch workspace by id
+  .get("/:workspaceId", sessionMiddleware, async (c) => {
+    const user = c.get("user");
+    const databases = c.get("databases");
+    const { workspaceId } = c.req.param();
+
+    // check if user is a member of the workspace
+    const member = await searchUserInWorkspace(
+      databases,
+      user.$id,
+      workspaceId
+    );
+
+    if (!member) return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
+
+    // get workspace
+    const workspace = await databases.getDocument<IWorkspace>(
+      DATABASE_ID,
+      COLLECTIONS.WORKSPACES_ID,
+      workspaceId
+    );
+
+    return c.json({ data: workspace });
+  })
+
+  // Fetch workspace public info
+  .get("/:workspaceId/info", sessionMiddleware, async (c) => {
+    const databases = c.get("databases");
+    const { users } = await createAdminClient();
+
+    const { workspaceId } = c.req.param();
+
+    // get workspace
+    const workspace = await databases.getDocument<IWorkspace>(
+      DATABASE_ID,
+      COLLECTIONS.WORKSPACES_ID,
+      workspaceId
+    );
+
+    if (!workspace) return c.json({ error: ERRORS.WORKSPACE_NOT_FOUND }, 404);
+
+    // get admin info
+    const admin = await users.get<IUser>(workspace.userId);
+
+    return c.json({
+      data: {
+        name: workspace.name,
+        image: workspace.image,
+        admin: { name: admin.name },
+      } as IWorkspacePublicInfo,
+    });
+  })
+
   // Update a workspace
   .patch(
     "/:workspaceId",
@@ -120,7 +179,7 @@ const app = new Hono()
         workspaceId,
         {
           name,
-          image: await getImageString(storage, image),
+          image: (await getImageString(storage, image)) ?? null,
         }
       );
 
@@ -239,4 +298,5 @@ const app = new Hono()
       return c.json({ data: workspace });
     }
   );
+
 export default app;

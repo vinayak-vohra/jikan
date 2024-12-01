@@ -9,16 +9,19 @@ import { useScrollHeight } from "@/hooks/use-scroll-height";
 
 interface Props {
   title: string;
+  forceShow?: boolean;
 }
 
-export function TitleCard({ title }: Props) {
+export function TitleCard({ title, forceShow }: Props) {
   const router = useRouter();
   const scrollHeight = useScrollHeight();
 
   return (
     <Card
       className={cn(
-        "w-full h-full border-0 shadow-sm sticky transition top-0 md:top-3",
+        "w-full h-full z-10 border-0 shadow-sm transition",
+        "sticky top-0 md:top-3",
+        !forceShow && "md:hidden",
         scrollHeight > 64 && "shadow-xl border"
       )}
     >

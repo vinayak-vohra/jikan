@@ -96,6 +96,18 @@ const app = new Hono()
         return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
       }
 
+      // Get workspace details
+      const workspace = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.WORKSPACES_ID,
+        memberToDelete.workspaceId
+      );
+
+      // Check if user is removing owner
+      if (workspace.userId === memberToDelete.userId) {
+        return c.json({ error: ERRORS.REMOVE_OWNER }, 400);
+      }
+
       // Check if user is deleting themselves or if they are an admin
       if (
         user.$id !== memberToDelete.userId &&
@@ -107,18 +119,6 @@ const app = new Hono()
       // Check if the member to delete is the last member
       if (allMembers.total === 1) {
         return c.json({ error: ERRORS.REMOVE_LAST_MEMBER }, 400);
-      }
-
-      // Get workspace details
-      const workspace = await databases.getDocument(
-        DATABASE_ID,
-        COLLECTIONS.WORKSPACES_ID,
-        memberToDelete.workspaceId
-      );
-
-      // Check if user is removing owner
-      if (workspace.userId === memberToDelete.userId) {
-        return c.json({ error: ERRORS.REMOVE_OWNER }, 400);
       }
 
       // Delete member

@@ -13,8 +13,9 @@ import {
   useJoinWorkspace,
   useWorkspaceId,
 } from "@/features/workspaces/hooks";
-import { IWorkspacePublicInfo } from "@/features/workspaces/services";
+
 import { useRouter } from "next/navigation";
+import { IWorkspacePublicInfo } from "../../workspaces.types";
 
 interface WorkspaceJoinCardProps {
   workspace: IWorkspacePublicInfo;

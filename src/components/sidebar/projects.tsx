@@ -45,12 +45,12 @@ export default function Projects() {
           <Link
             href={href}
             key={project.$id}
-            className="w-full h-9 rounded-md"
+            className="w-full h-8 mb-2 rounded-md"
           >
             <div
               className={cn(
-                "flex items-center gap-2.5 p-2.5 rounded-md transition cursor-pointer text-muted-foreground",
-                isActive && "bg-accent shadow-sm hover:opactiy-100"
+                "flex items-center gap-2.5 p-2 rounded-md transition cursor-pointer text-muted-foreground hover:text-primary",
+                isActive && "bg-accent shadow-sm hover:opacity-100 text-primary"
               )}
             >
               <ProjectAvatar name={project.name} image={project.image} />

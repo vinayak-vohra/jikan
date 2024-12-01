@@ -2,16 +2,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
 import { toast } from "sonner";
 
-import { workspaceApi } from "@/lib/rpc";
+import { api } from "@/lib/rpc";
 import { logError } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 type ResponseType = InferResponseType<
-  (typeof workspaceApi)[":workspaceId"]["join"]["$post"],
+  (typeof api)["workspaces"][":workspaceId"]["join"]["$post"],
   200
 >;
 type RequestType = InferRequestType<
-  (typeof workspaceApi)[":workspaceId"]["join"]["$post"]
+  (typeof api)["workspaces"][":workspaceId"]["join"]["$post"]
 >;
 
 export function useJoinWorkspace() {
@@ -19,10 +19,12 @@ export function useJoinWorkspace() {
   const router = useRouter();
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async ({ param, json }) => {
-      const response = await workspaceApi[":workspaceId"]["join"]["$post"]({
-        param,
-        json,
-      });
+      const response = await api["workspaces"][":workspaceId"]["join"]["$post"](
+        {
+          param,
+          json,
+        }
+      );
       if (!response.ok) throw new Error("Failed to join workspace");
       return await response.json();
     },
