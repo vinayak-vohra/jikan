@@ -51,22 +51,23 @@ export default function TaskViewSwitcher(props: TaskViewSwitcherProps) {
     [bulkUpdateTasks]
   );
 
-  useEffect(() => {
-    if (props.hideAssigneeFilter && user) {
-      setFilters({
-        ...filters,
-        assigneeId: user.$id,
-      });
-    }
+  // TODO: Fix Re-Render Issue
+  // useEffect(() => {
+  //   if (props.hideAssigneeFilter && user) {
+  //     setFilters({
+  //       ...filters,
+  //       assigneeId: user.$id,
+  //     });
+  //   }
 
-    if (props.hideProjectFilter && projectId) {
-      setFilters({
-        ...filters,
-        projectId,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props, user, projectId]);
+  //   if (props.hideProjectFilter && projectId) {
+  //     setFilters({
+  //       ...filters,
+  //       projectId,
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props, user, projectId]);
 
   return (
     <Tabs
