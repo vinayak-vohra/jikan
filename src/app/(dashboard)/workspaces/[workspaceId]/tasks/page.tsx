@@ -9,7 +9,7 @@ export default async function TaskPage() {
 
   return (
     <div className="h-dvh w-full p-4 flex flex-col">
-      <TaskViewSwitcher hideAssigneeFilter />
+      <TaskViewSwitcher />
     </div>
   );
 }

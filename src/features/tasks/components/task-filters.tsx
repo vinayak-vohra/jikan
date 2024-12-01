@@ -16,6 +16,7 @@ import { UserIcon, ListChecksIcon, FolderIcon } from "lucide-react";
 import MemberAvatar from "@/features/members/components/member-avatar";
 import ProjectAvatar from "@/features/projects/components/project-avatar";
 import DatePicker from "@/components/ui/date-picker";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TaskFiltersProps {
   hideProjectFilter?: boolean;
@@ -56,7 +57,7 @@ export default function TaskFilters(props: TaskFiltersProps) {
 
   const isLoading = isLoadingProjects || isLoadingMembers;
 
-  if (isLoading) return null;
+  if (isLoading) return <FilterSkeleton />;
 
   return (
     <div className="flex flex-col lg:flex-row gap-2">
@@ -158,6 +159,16 @@ export default function TaskFilters(props: TaskFiltersProps) {
           setFilters({ dueDate: date?.toISOString() || null });
         }}
       />
+    </div>
+  );
+}
+
+function FilterSkeleton() {
+  return (
+    <div className="flex flex-col lg:flex-row gap-2">
+      {[...Array(4)].map((_, index) => (
+        <Skeleton key={index} className="w-full lg:w-32 h-8 rounded-lg" />
+      ))}
     </div>
   );
 }
