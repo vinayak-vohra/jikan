@@ -20,7 +20,6 @@ import { useFetchProjects } from "@/features/projects/hooks";
 import { ProjectOptions } from "@/features/projects/projects.types";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
 
-import { useCreateTask } from "../hooks/use-create-task";
 import { createTaskSchema } from "../tasks.schemas";
 import { Button } from "@/components/ui/button";
 import DatePicker from "@/components/ui/date-picker";

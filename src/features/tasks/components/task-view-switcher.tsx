@@ -1,24 +1,24 @@
 "use client";
 import { Loader } from "lucide-react";
 import { useQueryState } from "nuqs";
+import { useCallback, useEffect } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCurrent } from "@/features/auth/hooks";
+import { useProjectId } from "@/features/projects/hooks";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
-
-import { useFetchTasks } from "../hooks/use-fetch-tasks";
-import { useTaskFilters } from "../hooks/use-task-filters";
-import { useBulkUpdateTask } from "../hooks/use-bulk-update-tasks";
-import { TaskUpdatePayload } from "../tasks.types";
+import { convertNullToUndefined } from "@/lib/utils";
 
 import DataCalendar from "./data-calendar";
 import DataKanban from "./data-kanban";
 import DataTable, { columns } from "./data-table";
 import TaskFilters from "./task-filters";
-import { convertNullToUndefined } from "@/lib/utils";
-import { useCurrent } from "@/features/auth/hooks";
-import { useEffect } from "react";
-import { useProjectId } from "@/features/projects/hooks";
+
+import { useFetchTasks } from "../hooks/use-fetch-tasks";
+import { useTaskFilters } from "../hooks/use-task-filters";
+import { useBulkUpdateTask } from "../hooks/use-bulk-update-tasks";
+import { TaskUpdatePayload } from "../tasks.types";
 
 interface TaskViewSwitcherProps {
   hideProjectFilter?: boolean;
@@ -44,9 +44,12 @@ export default function TaskViewSwitcher(props: TaskViewSwitcherProps) {
     ...convertNullToUndefined(filters),
   });
 
-  const onKanbanChange = (payload: TaskUpdatePayload[]) => {
-    bulkUpdateTasks({ json: { tasks: payload } });
-  };
+  const onKanbanChange = useCallback(
+    (payload: TaskUpdatePayload[]) => {
+      bulkUpdateTasks({ json: { tasks: payload } });
+    },
+    [bulkUpdateTasks]
+  );
 
   useEffect(() => {
     if (props.hideAssigneeFilter && user) {
@@ -62,6 +65,7 @@ export default function TaskViewSwitcher(props: TaskViewSwitcherProps) {
         projectId,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props, user, projectId]);
 
   return (

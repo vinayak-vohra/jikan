@@ -1,5 +1,4 @@
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { IAnalytics } from "../projects.types";
 import AnalayticsCard from "./analytics-card";
 import { useFetchProjectAnalytics, useProjectId } from "../hooks";
 import Loader from "@/components/loader";

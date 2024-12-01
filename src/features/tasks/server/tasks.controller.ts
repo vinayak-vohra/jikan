@@ -166,7 +166,10 @@ const app = new Hono()
       });
 
       return c.json({
-        data: { total: populatedTasks.length, documents: populatedTasks as ITaskPopulated[] },
+        data: {
+          total: populatedTasks.length,
+          documents: populatedTasks as ITaskPopulated[],
+        },
       });
     }
   )
@@ -177,7 +180,6 @@ const app = new Hono()
     const databases = c.get("databases");
     const { users } = await createAdminClient();
     const { taskId } = c.req.param();
-    
 
     const task = await databases.getDocument<ITask>(
       DATABASE_ID,
@@ -214,7 +216,9 @@ const app = new Hono()
       email: assigneeInfo.email,
     };
 
-    return c.json({ data: { ...task, project, assignee: populatedAssignee } as ITaskPopulated });
+    return c.json({
+      data: { ...task, project, assignee: populatedAssignee } as ITaskPopulated,
+    });
   })
 
   // update task
@@ -336,15 +340,15 @@ const app = new Hono()
       // update tasks
       const updatedTasks = await Promise.all(
         tasks.map(async (task) => {
-          const { $id, position, status } = task;
+          const { $id: taskId, position, status } = task;
 
           return databases.updateDocument<ITask>(
             DATABASE_ID,
             COLLECTIONS.TASKS_ID,
-            task.$id,
+            taskId,
             {
-              status: task.status,
-              position: task.position,
+              status,
+              position,
             }
           );
         })

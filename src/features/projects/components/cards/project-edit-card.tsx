@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,7 +27,6 @@ interface Props {
 }
 
 export function ProjectEditCard({ project }: Props) {
-  const router = useRouter();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
 
   const form = useForm<z.infer<typeof updateProjectSchema>>({
@@ -58,7 +56,7 @@ export function ProjectEditCard({ project }: Props) {
     }
   };
 
-  const handleImageReset = (fieldOnChange: (...ev: any[]) => void) => {
+  const handleImageReset = () => {
     // fieldOnChange(null);
     if (fileUploadRef.current) {
       fileUploadRef.current.value = "";
@@ -154,7 +152,7 @@ export function ProjectEditCard({ project }: Props) {
                             variant="secondary"
                             className="w-fit bg-red-200 hover:bg-red-300 text-red-900"
                             disabled={isUpdating}
-                            onClick={() => handleImageReset(field.onChange)}
+                            onClick={handleImageReset}
                           >
                             Clear
                           </Button>

@@ -9,7 +9,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  useInviteCode,
   useResetInviteCode,
   useWorkspaceId,
 } from "@/features/workspaces/hooks";

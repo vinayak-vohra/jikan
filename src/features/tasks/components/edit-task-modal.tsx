@@ -5,7 +5,7 @@ import { useEditTaskModal } from "../hooks/use-update-task-modal";
 import EditTaskForm from "./edit-task-form";
 
 export default function EditTaskModal() {
-  const { taskId, openModal, closeModal } = useEditTaskModal();
+  const { taskId, closeModal } = useEditTaskModal();
   return (
     <ResponsiveModal open={!!taskId} onOpenChange={closeModal}>
       {taskId && <EditTaskForm taskId={taskId} onCancel={closeModal} />}

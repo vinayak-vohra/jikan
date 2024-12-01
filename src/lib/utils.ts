@@ -49,7 +49,7 @@ export function createTWClasses(cls: TwClasses, status: STATUS) {
     .join(" ");
 }
 
-export function convertNullToUndefined(value: Object) {
+export function convertNullToUndefined(value: object) {
   return {
     ...Object.entries(value).reduce(
       (acc, [key, value]) => ({ ...acc, [key]: value ?? undefined }),

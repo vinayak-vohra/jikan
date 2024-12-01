@@ -76,7 +76,7 @@ export default function DataKanban({ data, onChange }: DataKanbanProps) {
     const sourceStatus = source.droppableId as STATUS;
     const destinationStatus = destination.droppableId as STATUS;
 
-    let updatePayload: TaskUpdatePayload[] = [];
+    const updatePayload: TaskUpdatePayload[] = [];
 
     setTasks((prevTasks) => {
       const newTasks = { ...prevTasks };
@@ -142,7 +142,7 @@ export default function DataKanban({ data, onChange }: DataKanbanProps) {
     });
 
     onChange(updatePayload);
-  }, []);
+  }, [onChange]);
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>

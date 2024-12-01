@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,7 +27,6 @@ interface Props {
 }
 
 export function WorkspaceEditCard({ workspace }: Props) {
-  const router = useRouter();
   const { mutate: updateWorkspace, isPending: isUpdating } =
     useUpdateWorkspace();
 

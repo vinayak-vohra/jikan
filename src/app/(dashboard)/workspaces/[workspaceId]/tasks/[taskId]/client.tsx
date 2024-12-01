@@ -2,7 +2,6 @@
 
 import ErrorPage from "@/components/error";
 import Loader from "@/components/loader";
-import { Separator } from "@/components/ui/separator";
 import TaskBreadCrumbs from "@/features/tasks/components/task-breadcrumbs";
 import TaskDescription from "@/features/tasks/components/task-description";
 import TaskOverview from "@/features/tasks/components/task-overview";

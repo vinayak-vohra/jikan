@@ -1,6 +1,6 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { ITaskPopulated, STATUS } from "../../tasks.types";
+import { ITaskPopulated } from "../../tasks.types";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, MoreVerticalIcon } from "lucide-react";
 import ProjectAvatar from "@/features/projects/components/project-avatar";

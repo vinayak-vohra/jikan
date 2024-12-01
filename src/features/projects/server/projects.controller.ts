@@ -152,7 +152,7 @@ const app = new Hono()
         );
 
         return c.json({ data: project });
-      } catch (error: any) {
+      } catch {
         return c.json({ error: ERRORS.INTERNAL }, 400);
       }
     }

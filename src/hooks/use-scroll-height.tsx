@@ -13,7 +13,7 @@ export function useScrollHeight() {
     if (!window) return;
 
     window.addEventListener("scroll", updateHeight);
-    () => window.removeEventListener("scroll", updateHeight);
+    return () => window.removeEventListener("scroll", updateHeight);
   }, []);
 
   return scrollHeight;
