@@ -1,11 +1,10 @@
 "use client";
 import { Loader } from "lucide-react";
 import { useQueryState } from "nuqs";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useCurrent } from "@/features/auth/hooks";
 import { useProjectId } from "@/features/projects/hooks";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
 import { convertNullToUndefined } from "@/lib/utils";
@@ -35,7 +34,6 @@ export default function TaskViewSwitcher(props: TaskViewSwitcherProps) {
   const projectId = useProjectId();
 
   const { mutate: bulkUpdateTasks } = useBulkUpdateTask();
-  const { data: user } = useCurrent();
 
   const [filters] = useTaskFilters();
 
