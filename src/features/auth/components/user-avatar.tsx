@@ -50,19 +50,19 @@ export default function UserAvatar() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="bottom" className="w-48">
         <div className="flex items-center gap-4 px-4 py-2">
-          <Avatar className="size-12">
+          {/* <Avatar className="size-10">
             <AvatarFallback className="bg-accent text-xl font-medium text-accent-foreground flex items-center justify-center">
               {avatarFallback}
             </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col items-center justify-center">
-            <p className="text-sm font-medium text-foreground">
+          </Avatar> */}
+          <div className="flex flex-col truncate">
+            <p className="text-sm truncate font-medium text-foreground">
               {name || fallbackName}
             </p>
-            <p className="text-xs text-muted-foreground">{email}</p>
+            <p className="text-xs truncate text-muted-foreground">{email}</p>
           </div>
         </div>
-        <Separator className="my-1" />
+        {/* <Separator className="my-1" />
         <div className="flex text-sm text-muted-foreground items-center px-2 h-8">
           <SunMoonIcon className="size-4 mr-2" />
           <span>Theme</span>
@@ -84,7 +84,7 @@ export default function UserAvatar() {
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </div> */}
         <Separator className="my-1" />
         <DropdownMenuItem
           onClick={() => logout()}
