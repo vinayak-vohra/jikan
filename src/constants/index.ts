@@ -6,6 +6,8 @@ const WORKSPACES_ID = process.env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID!;
 const PROJECTS_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECTS_ID!;
 const TASKS_ID = process.env.NEXT_PUBLIC_APPWRITE_TASKS_ID!;
 
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
+
 export const COLLECTIONS = {
   WORKSPACES_ID,
   MEMBERS_ID,
