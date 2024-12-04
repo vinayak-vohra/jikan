@@ -18,7 +18,12 @@ export const fetchTaskSchema = z.object({
   workspaceId: z.string(),
   projectId: z.string().nullish(),
   assigneeId: z.string().nullish(),
-  status: z.nativeEnum(STATUS).nullish(),
+  notStatus: z
+    .union([z.nativeEnum(STATUS), z.array(z.nativeEnum(STATUS))])
+    .nullish(),
+  status: z
+    .union([z.nativeEnum(STATUS), z.array(z.nativeEnum(STATUS))])
+    .nullish(),
   search: z.string().nullish(),
   dueDate: z.string().nullish(),
 });

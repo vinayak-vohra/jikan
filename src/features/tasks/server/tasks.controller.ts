@@ -109,6 +109,11 @@ const app = new Hono()
         query.push(Query.equal("status", filters.status));
       }
 
+      // Filter by not status if provided
+      if (filters.notStatus) {
+        query.push(Query.notEqual("status", filters.notStatus));
+      }
+
       // Search by name if search term is provided
       if (filters.search) {
         query.push(Query.search("name", filters.search));
