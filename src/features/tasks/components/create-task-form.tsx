@@ -19,7 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { useFetchMembers } from "@/features/members/hooks";
 import { MemberOptions } from "@/features/members/members.types";
 import { useFetchProjects } from "@/features/projects/hooks";

@@ -3,13 +3,10 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   useInviteCode,
   useJoinWorkspace,

@@ -25,7 +25,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { createProjectSchema } from "@/features/projects/projects.schemas";
 import { useCreateProject } from "@/features/projects/hooks";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
