@@ -3,7 +3,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -35,6 +41,8 @@ import MemberAvatar from "@/features/members/components/member-avatar";
 import ProjectAvatar from "@/features/projects/components/project-avatar";
 import { STATUS } from "../tasks.types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CalendarPlusIcon } from "lucide-react";
+import { useCreateTaskModal } from "@/providers/task-modal-provider";
 
 interface CreateTaskFormProps {
   onCancel?: () => void;
@@ -42,17 +50,15 @@ interface CreateTaskFormProps {
 
 type FormT = z.infer<typeof createTaskSchema>;
 
-export default function CreateTaskForm(props: CreateTaskFormProps) {
+export default function CreateTaskForm({ onCancel }: CreateTaskFormProps) {
   const workspaceId = useWorkspaceId();
+  const { status } = useCreateTaskModal();
 
   const { mutate: createTask, isPending } = useCreateTask();
 
   const form = useForm<FormT>({
     resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
-    defaultValues: {
-      workspaceId,
-      status: STATUS.TODO,
-    },
+    defaultValues: { status },
   });
 
   const onSubmit = (data: FormT) => {
@@ -66,25 +72,26 @@ export default function CreateTaskForm(props: CreateTaskFormProps) {
       {
         onSuccess: () => {
           form.reset();
-          props.onCancel?.();
+          onCancel?.();
         },
       }
     );
   };
 
   return (
-    <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7 max-md:py-3">
-        <CardTitle className="text-xl font-bold">Create a new Task</CardTitle>
+    <Card className="w-full lg:px-4 max-w-lg mx-auto border-none shadow-none">
+      <CardHeader className="flex pb-4 max-md:pt-4 flex-col items-center gap-3">
+        <div className="p-3 rounded-full bg-blue-100 text-blue-500">
+          <CalendarPlusIcon className="size-8" />
+        </div>
+        <CardTitle className="text-xl">Create New Task</CardTitle>
       </CardHeader>
-      <div className="px-7">
-        <Separator />
-      </div>
-      <CardContent className="p-7 max-md:py-3">
+      <CardContent className="px-6 pt-2 pb-4">
         <Form {...form}>
           <form
+            id="create-task-form"
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-y-4"
+            className="flex flex-col gap-y-2"
           >
             <FormField
               control={form.control}
@@ -121,16 +128,12 @@ export default function CreateTaskForm(props: CreateTaskFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Status" />
                       </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
                     <SelectContent>
                       {Object.values(STATUS).map((status) => (
                         <SelectItem key={status} value={status}>
@@ -145,26 +148,29 @@ export default function CreateTaskForm(props: CreateTaskFormProps) {
             />
 
             <ProjectSelector form={form} />
-
-            <div className="py-3 max-md:py-1">
-              <Separator />
-            </div>
-            <div className="flex items-center justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={props.onCancel}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" disabled={isPending}>
-                Create Task
-              </Button>
-            </div>
           </form>
         </Form>
       </CardContent>
+      <CardFooter className="flex items-center justify-between py-4 border-t">
+        <Button
+          type="button"
+          variant="destructive"
+          disabled={isPending}
+          className="w-36"
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          className="w-36"
+          form="create-task-form"
+          variant="primary"
+          disabled={isPending}
+        >
+          Create Task
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
@@ -200,7 +206,6 @@ function AssigneeSelector({ form }: SelectorProps) {
                     <SelectValue placeholder="Select Assignee" />
                   </SelectTrigger>
                 </FormControl>
-                <FormMessage />
                 <SelectContent>
                   {memberOptions.map((member) => (
                     <SelectItem key={member.$id} value={member.$id}>
@@ -249,7 +254,6 @@ function ProjectSelector({ form }: SelectorProps) {
                     <SelectValue placeholder="Select Project" />
                   </SelectTrigger>
                 </FormControl>
-                <FormMessage />
                 <SelectContent>
                   {projectOptions.map((project) => (
                     <SelectItem key={project.$id} value={project.$id}>

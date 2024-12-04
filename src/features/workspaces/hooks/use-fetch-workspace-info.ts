@@ -14,6 +14,8 @@ export function useFetchWorkspaceInfo(workspaceId: string) {
 
       return (await response.json()).data;
     },
+    retry: false,
+    refetchOnWindowFocus: false,
   });
   return query;
 }

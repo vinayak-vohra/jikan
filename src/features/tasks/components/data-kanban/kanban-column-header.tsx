@@ -10,6 +10,7 @@ import {
   CircleIcon,
   PlusIcon,
 } from "lucide-react";
+import { useCreateTaskModal } from "@/providers/task-modal-provider";
 
 type KanbanColumnProps = {
   board: STATUS;
@@ -27,6 +28,7 @@ const statusIconMap: Record<STATUS, React.ReactNode> = {
 };
 
 export default function KanbanColumnHeader(props: KanbanColumnProps) {
+  const { openModal } = useCreateTaskModal();
   return (
     <Badge
       variant={props.board}
@@ -41,6 +43,7 @@ export default function KanbanColumnHeader(props: KanbanColumnProps) {
       <Button
         variant="ghost"
         className="size-6 p-0 bg-transparent hover:bg-background/80"
+        onClick={() => openModal(props.board)}
       >
         <PlusIcon className="size-4" />
       </Button>

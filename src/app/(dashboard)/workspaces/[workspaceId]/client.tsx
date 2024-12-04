@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDistanceToNow, formatDistanceToNowStrict } from "date-fns";
-import { CalendarIcon, PlusIcon, UserRoundCogIcon } from "lucide-react";
+import { CalendarIcon, ExternalLinkIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 
 import Analytics, { AnalyticsSkeleton } from "@/components/analytics";
@@ -12,13 +12,16 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton as Skelly } from "@/components/ui/skeleton";
 import ProjectAvatar from "@/features/projects/components/project-avatar";
 import { useFetchProjects, useProjectModal } from "@/features/projects/hooks";
-import { useCreateTaskModal, useFetchTasks } from "@/features/tasks/hooks";
+import { useFetchTasks } from "@/features/tasks/hooks";
 import {
   useWorkspaceId,
   useFetchWorkspaceAnalytics,
 } from "@/features/workspaces/hooks";
 import { useFetchMembers } from "@/features/members/hooks";
 import MemberAvatar from "@/features/members/components/member-avatar";
+import { useCreateTaskModal } from "@/providers/task-modal-provider";
+import { Badge } from "@/components/ui/badge";
+import { STATUS } from "@/features/tasks/tasks.types";
 
 export default function WorkspaceIdClient() {
   return (
@@ -52,7 +55,10 @@ function WorkspaceAnalytics() {
 // Tasks
 function TaskList() {
   const workspaceId = useWorkspaceId();
-  const { data: tasks, isLoading } = useFetchTasks({ workspaceId });
+  const { data: tasks, isLoading } = useFetchTasks({
+    workspaceId,
+    notStatus: STATUS.DONE,
+  });
   const { openModal } = useCreateTaskModal();
 
   if (isLoading) return <Skeleton variant="tasks" />;
@@ -63,9 +69,18 @@ function TaskList() {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <p className="text-base font-semibold">Tasks ({tasks.total})</p>
-          <Button variant="outline" size="icon" onClick={openModal}>
-            <PlusIcon className="size-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/workspaces/${workspaceId}/tasks`}>
+                <ExternalLinkIcon className="size-4" />
+                <span className="hidden md:block">&nbsp;View All</span>
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => openModal()}>
+              <PlusIcon className="size-4" />
+              <span className="hidden md:block">&nbsp;New Task</span>
+            </Button>
+          </div>
         </div>
         <Separator className="my-4" />
         <ScrollArea className="border">
@@ -74,24 +89,27 @@ function TaskList() {
               <li key={task.$id}>
                 <Link href={`/workspaces/${workspaceId}/tasks/${task.$id}`}>
                   <Card className="shadow-none rounded-none md:rounded-none hover:shadow-sm hover:bg-foreground/5  transition">
-                    <CardContent className="px-4 py-2 space-y-2">
-                      <p className="text-base font-medium truncate">
-                        {task.name}
-                      </p>
-                      <div className="flex items-center text-xs text-muted-foreground gap-x-1">
-                        <ProjectAvatar
-                          name={task.project.name}
-                          image={task.project.image}
-                          size={5}
-                          className="text-[10px]"
-                        />
-                        <p>{task.project.name}</p>
-                        <div className="size-1 mx-1 bg-muted-foreground rounded-full" />
-                        <CalendarIcon className="size-4" />
-                        <span className="truncate">
-                          {formatDistanceToNow(task.dueDate)}
-                        </span>
+                    <CardContent className="flex items-start justify-between px-4 py-2 space-y-2">
+                      <div className="flex flex-col">
+                        <p className="text-base font-medium truncate">
+                          {task.name}
+                        </p>
+                        <div className="flex items-center text-xs text-muted-foreground gap-x-1">
+                          <ProjectAvatar
+                            name={task.project.name}
+                            image={task.project.image}
+                            size={5}
+                            className="text-[10px]"
+                          />
+                          <p>{task.project.name}</p>
+                          <div className="size-1 mx-1 bg-muted-foreground rounded-full" />
+                          <CalendarIcon className="size-4" />
+                          <span className="truncate">
+                            {formatDistanceToNow(task.dueDate)}
+                          </span>
+                        </div>
                       </div>
+                      <Badge variant={task.status}>{task.status}</Badge>
                     </CardContent>
                   </Card>
                 </Link>
@@ -122,8 +140,9 @@ function Projects() {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <p className="text-base font-semibold">Projects ({projects.total})</p>
-          <Button variant="outline" size="icon" onClick={openModal}>
+          <Button variant="outline" size="sm" onClick={openModal}>
             <PlusIcon className="size-4" />
+            <span className="hidden md:block">&nbsp;New Project</span>
           </Button>
         </div>
         <Separator className="my-4" />
@@ -176,9 +195,10 @@ function Members() {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <p className="text-base font-semibold">Members ({members.total})</p>
-          <Button variant="outline" size="icon" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href={`/workspaces/${workspaceId}/members`}>
-              <UserRoundCogIcon className="size-4" />
+              <ExternalLinkIcon className="size-4" />
+              <span className="hidden md:block">&nbsp;View All</span>
             </Link>
           </Button>
         </div>
@@ -217,7 +237,7 @@ type TSkellyVariant = {
 };
 const SkellyVariant: TSkellyVariant = {
   members: (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 py-4 gap-2 border-t">
+    <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 py-4 gap-2 border-t">
       {[...Array(3)].map((_, i) => (
         <div
           key={i}
@@ -264,7 +284,10 @@ function Skeleton({ variant }: { variant: keyof TSkellyVariant }) {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <Skelly className="w-32 h-6" />
-          <Skelly className="size-8" />
+          <div className="flex gap-2">
+            {variant === "tasks" && <Skelly className="h-8 w-8 md:w-20" />}
+            <Skelly className="h-8 w-8 md:w-20" />
+          </div>
         </div>
         <div className="my-4" />
         {SkellyVariant[variant]}

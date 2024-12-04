@@ -15,7 +15,7 @@ import {
 } from "@/features/projects/hooks";
 import TaskViewSwitcher from "@/features/tasks/components/task-view-switcher";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
-import { useCreateTaskModal } from "@/features/tasks/hooks";
+import { useCreateTaskModal } from "@/providers/task-modal-provider";
 
 export default function ProjectIdClient() {
   const projectId = useProjectId();
@@ -44,7 +44,7 @@ export default function ProjectIdClient() {
               <span className="hidden md:block">&nbsp;Edit</span>
             </Link>
           </Button>
-          <Button onClick={openModal} variant="primary" size="sm">
+          <Button onClick={() => openModal()} variant="primary" size="sm">
             <PlusIcon className="size-4" />
             <span className="hidden md:block">&nbsp;New</span>
           </Button>
