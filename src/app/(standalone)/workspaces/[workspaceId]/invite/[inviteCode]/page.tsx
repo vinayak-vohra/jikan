@@ -13,5 +13,9 @@ export default async function JoinPage() {
   //   )}`
   // );
 
-  return <InviteClient />;
+  return (
+    <div className="py-5 flex flex-col items-center justify-evenly gap-5 w-full md:gap-0 md:max-w-5xl">
+      <InviteClient />
+    </div>
+  );
 }

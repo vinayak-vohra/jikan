@@ -6,10 +6,17 @@ import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { BsBuildingFillAdd } from "react-icons/bs";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -19,12 +26,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { useCreateWorkspace } from "@/features/workspaces/hooks";
 import { createWorkSpaceSchema } from "@/features/workspaces/workspaces.schemas";
 
 interface CreateWorkpaceFormProps {
   onCancel?: () => void;
+  defaultName?: string;
 }
 
 export default function CreateWorkpaceForm(props: CreateWorkpaceFormProps) {
@@ -32,7 +39,7 @@ export default function CreateWorkpaceForm(props: CreateWorkpaceFormProps) {
   const form = useForm<z.infer<typeof createWorkSpaceSchema>>({
     resolver: zodResolver(createWorkSpaceSchema),
     defaultValues: {
-      name: "",
+      name: props.defaultName ?? "",
     },
   });
   const router = useRouter();
@@ -71,18 +78,17 @@ export default function CreateWorkpaceForm(props: CreateWorkpaceFormProps) {
   };
 
   return (
-    <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7 max-md:py-3">
-        <CardTitle className="text-xl font-bold">
-          Create a new workspace
-        </CardTitle>
+    <Card className="w-full lg:px-4 max-w-lg mx-auto border-none shadow-none">
+      <CardHeader className="flex pb-4 max-md:pt-4 flex-col items-center gap-3">
+        <div className="p-3 rounded-full bg-blue-100 text-blue-500">
+          <BsBuildingFillAdd className="size-8" />
+        </div>
+        <CardTitle className="text-xl">Create New Workspace</CardTitle>
       </CardHeader>
-      <div className="px-7">
-        <Separator />
-      </div>
-      <CardContent className="p-7 max-md:py-3">
+      <CardContent className="px-6 pt-2 pb-4">
         <Form {...form}>
           <form
+            id="create-workspace-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-y-4"
           >
@@ -170,26 +176,33 @@ export default function CreateWorkpaceForm(props: CreateWorkpaceFormProps) {
                   </div>
                 </div>
               )}
-            />
-            <div className="py-3 max-md:py-1">
-              <Separator />
-            </div>
-            <div className="flex items-center justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={props.onCancel}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" disabled={isPending}>
-                Create Workspace
-              </Button>
-            </div>
+            />            
           </form>
         </Form>
       </CardContent>
+      <CardFooter className="flex items-center justify-between py-4 border-t">
+        {props.onCancel && (
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={isPending}
+            className="w-36"
+            onClick={props.onCancel}
+          >
+            Cancel
+          </Button>
+        )}
+        {!props.onCancel && <span />}
+        <Button
+          type="submit"
+          className="w-36"
+          form="create-workspace-form"
+          variant="primary"
+          disabled={isPending}
+        >
+          Create Project
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
