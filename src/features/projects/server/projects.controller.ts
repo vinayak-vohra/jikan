@@ -14,6 +14,12 @@ import { createProjectSchema, updateProjectSchema } from "../projects.schemas";
 import { IProject } from "../projects.types";
 import { ITask, STATUS } from "@/features/tasks/tasks.types";
 import { IAnalytics } from "@/types/global.types";
+import {
+  APIException,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/lib/exception";
+import { HTTPException } from "hono/http-exception";
 
 const app = new Hono()
 
@@ -23,53 +29,66 @@ const app = new Hono()
     sessionMiddleware,
     zValidator("query", z.object({ workspaceId: z.string() })),
     async (c) => {
-      const user = c.get("user");
-      const databases = c.get("databases");
+      try {
+        const user = c.get("user");
+        const databases = c.get("databases");
 
-      const { workspaceId } = c.req.valid("query");
+        const { workspaceId } = c.req.valid("query");
 
-      const member = await searchUserInWorkspace(
-        databases,
-        user.$id,
-        workspaceId
-      );
+        const member = await searchUserInWorkspace(
+          databases,
+          user.$id,
+          workspaceId
+        );
 
-      if (!member) return c.json({ error: "Unauthorized" }, 401);
+        if (!member) throw new UnauthorizedError();
 
-      const projects = await databases.listDocuments<IProject>(
-        DATABASE_ID,
-        COLLECTIONS.PROJECTS_ID,
-        [Query.equal("workspaceId", workspaceId), Query.orderDesc("$createdAt")]
-      );
+        const projects = await databases.listDocuments<IProject>(
+          DATABASE_ID,
+          COLLECTIONS.PROJECTS_ID,
+          [
+            Query.equal("workspaceId", workspaceId),
+            Query.orderDesc("$createdAt"),
+          ]
+        );
 
-      return c.json({ data: projects });
+        return c.json({ data: projects });
+      } catch (error: unknown) {
+        if (error instanceof HTTPException) throw error;
+        throw new APIException(error);
+      }
     }
   )
 
   // Fetch project by id
   .get("/:projectId", sessionMiddleware, async (c) => {
-    const user = c.get("user");
-    const databases = c.get("databases");
+    try {
+      const user = c.get("user");
+      const databases = c.get("databases");
 
-    const { projectId } = c.req.param();
+      const { projectId } = c.req.param();
 
-    const project = await databases.getDocument<IProject>(
-      DATABASE_ID,
-      COLLECTIONS.PROJECTS_ID,
-      projectId
-    );
+      const project = await databases.getDocument<IProject>(
+        DATABASE_ID,
+        COLLECTIONS.PROJECTS_ID,
+        projectId
+      );
 
-    if (!project) return c.json({ error: ERRORS.PROJECT_NOT_FOUND }, 404);
+      if (!project) throw new NotFoundError("Project Not Found");
 
-    const member = await searchUserInWorkspace(
-      databases,
-      user.$id,
-      project.workspaceId
-    );
+      const member = await searchUserInWorkspace(
+        databases,
+        user.$id,
+        project.workspaceId
+      );
 
-    if (!member) return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
+      if (!member) throw new UnauthorizedError();
 
-    return c.json({ data: project });
+      return c.json({ data: project });
+    } catch (error: unknown) {
+      if (error instanceof HTTPException) throw error;
+      throw new APIException(error);
+    }
   })
 
   // Create a project in a workspace
@@ -78,36 +97,43 @@ const app = new Hono()
     sessionMiddleware,
     zValidator("form", createProjectSchema),
     async (c) => {
-      const user = c.get("user");
-      const databases = c.get("databases");
-      const storage = c.get("storage");
+      try {
+        const user = c.get("user");
+        const databases = c.get("databases");
+        const storage = c.get("storage");
 
-      const { name, image, workspaceId } = c.req.valid("form");
+        const { name, image, workspaceId } = c.req.valid("form");
 
-      // find current user in workspace
-      const member = await searchUserInWorkspace(
-        databases,
-        user.$id,
-        workspaceId
-      );
+        // find current user in workspace
+        const member = await searchUserInWorkspace(
+          databases,
+          user.$id,
+          workspaceId
+        );
 
-      // check if user is a member of the workspace and is an admin
-      if (!member || member.role !== MemberRoles.ADMIN)
-        return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
+        // check if user is a member of the workspace and is an admin
+        if (!member) throw new UnauthorizedError();
 
-      // create new document in projects collection
-      const project = await databases.createDocument(
-        DATABASE_ID,
-        COLLECTIONS.PROJECTS_ID,
-        ID.unique(),
-        {
-          name,
-          image: await getImageString(storage, image),
-          workspaceId,
-        }
-      );
+        if (member.role !== MemberRoles.ADMIN)
+          throw new UnauthorizedError("Need Admin Privileges");
 
-      return c.json({ data: project });
+        // create new document in projects collection
+        const project = await databases.createDocument(
+          DATABASE_ID,
+          COLLECTIONS.PROJECTS_ID,
+          ID.unique(),
+          {
+            name,
+            image: await getImageString(storage, image),
+            workspaceId,
+          }
+        );
+
+        return c.json({ data: project });
+      } catch (error: unknown) {
+        if (error instanceof HTTPException) throw error;
+        throw new APIException(error);
+      }
     }
   )
 
@@ -139,7 +165,10 @@ const app = new Hono()
           currentProject.workspaceId
         );
 
-        if (!member) return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
+        if (!member) throw new UnauthorizedError();
+
+        if (member.role !== MemberRoles.ADMIN)
+          throw new UnauthorizedError("Need Admin Privileges");
 
         // update project
         const project = await databases.updateDocument(
@@ -153,8 +182,9 @@ const app = new Hono()
         );
 
         return c.json({ data: project });
-      } catch {
-        return c.json({ error: ERRORS.INTERNAL }, 400);
+      } catch (error: unknown) {
+        if (error instanceof HTTPException) throw error;
+        throw new APIException(error);
       }
     }
   )
@@ -181,7 +211,9 @@ const app = new Hono()
         project.workspaceId
       );
 
-      if (!member || member.role !== MemberRoles.ADMIN)
+      if (!member) throw new UnauthorizedError();
+
+      if (member.role !== MemberRoles.ADMIN)
         throw new UnauthorizedError("Need Admin Privileges");
 
       // get all tasks in the project
@@ -205,198 +237,204 @@ const app = new Hono()
         projectId
       );
 
-      return c.json({ data: { $id: projectId } });
-    } catch {
-      return c.json({ error: ERRORS.INTERNAL }, 400);
+      return c.json({ data: { $id: projectId, tasksDeleted: tasks.total } });
+    } catch (error: unknown) {
+      if (error instanceof HTTPException) throw error;
+      throw new APIException(error);
     }
   })
 
   // Get project analytics
   .get("/:projectId/analytics", sessionMiddleware, async (c) => {
-    const user = c.get("user");
-    const databases = c.get("databases");
+    try {
+      const user = c.get("user");
+      const databases = c.get("databases");
 
-    const { projectId } = c.req.param();
+      const { projectId } = c.req.param();
 
-    // get project info
-    const project = await databases.getDocument<IProject>(
-      DATABASE_ID,
-      COLLECTIONS.PROJECTS_ID,
-      projectId
-    );
+      // get project info
+      const project = await databases.getDocument<IProject>(
+        DATABASE_ID,
+        COLLECTIONS.PROJECTS_ID,
+        projectId
+      );
 
-    // get member info
-    const member = await searchUserInWorkspace(
-      databases,
-      user.$id,
-      project.workspaceId
-    );
+      // get member info
+      const member = await searchUserInWorkspace(
+        databases,
+        user.$id,
+        project.workspaceId
+      );
 
-    if (!member) return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
+      if (!member) throw new UnauthorizedError();
 
-    const now = new Date();
-    const currentMonthStart = startOfMonth(now);
-    const currentMonthEnd = endOfMonth(now);
+      const now = new Date();
+      const currentMonthStart = startOfMonth(now);
+      const currentMonthEnd = endOfMonth(now);
 
-    const lastMonthStart = startOfMonth(subMonths(now, 1));
-    const lastMonthEnd = endOfMonth(subMonths(now, 1));
+      const lastMonthStart = startOfMonth(subMonths(now, 1));
+      const lastMonthEnd = endOfMonth(subMonths(now, 1));
 
-    const currentMonthTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
-      ]
-    );
+      const currentMonthTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
+        ]
+      );
 
-    const lastMonthTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
-      ]
-    );
+      const lastMonthTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
+        ]
+      );
 
-    const taskCount = currentMonthTasks.total;
-    const taskDifference = currentMonthTasks.total - lastMonthTasks.total;
+      const taskCount = currentMonthTasks.total;
+      const taskDifference = currentMonthTasks.total - lastMonthTasks.total;
 
-    const currentMonthAssignedTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.equal("assigneeId", member.$id),
-        Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
-      ]
-    );
+      const currentMonthAssignedTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("assigneeId", member.$id),
+          Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
+        ]
+      );
 
-    const lastMonthAssignedTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.equal("assigneeId", member.$id),
-        Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
-      ]
-    );
+      const lastMonthAssignedTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("assigneeId", member.$id),
+          Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
+        ]
+      );
 
-    const assignedTaskCount = currentMonthAssignedTasks.total;
-    const assignedTaskDifference =
-      currentMonthAssignedTasks.total - lastMonthAssignedTasks.total;
+      const assignedTaskCount = currentMonthAssignedTasks.total;
+      const assignedTaskDifference =
+        currentMonthAssignedTasks.total - lastMonthAssignedTasks.total;
 
-    const currentMonthIncompleteTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.notEqual("status", STATUS.DONE),
-        Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
-      ]
-    );
+      const currentMonthIncompleteTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.notEqual("status", STATUS.DONE),
+          Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
+        ]
+      );
 
-    const lastMonthIncompleteTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.notEqual("status", STATUS.DONE),
-        Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
-      ]
-    );
+      const lastMonthIncompleteTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.notEqual("status", STATUS.DONE),
+          Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
+        ]
+      );
 
-    const incompleteTaskCount = currentMonthIncompleteTasks.total;
-    const incompleteTaskDifference =
-      currentMonthIncompleteTasks.total - lastMonthIncompleteTasks.total;
+      const incompleteTaskCount = currentMonthIncompleteTasks.total;
+      const incompleteTaskDifference =
+        currentMonthIncompleteTasks.total - lastMonthIncompleteTasks.total;
 
-    const currentMonthCompleteTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.equal("status", STATUS.DONE),
-        Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
-      ]
-    );
+      const currentMonthCompleteTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("status", STATUS.DONE),
+          Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
+        ]
+      );
 
-    const lastMonthCompleteTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.equal("status", STATUS.DONE),
-        Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
-      ]
-    );
+      const lastMonthCompleteTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("status", STATUS.DONE),
+          Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
+        ]
+      );
 
-    const completeTaskCount = currentMonthCompleteTasks.total;
-    const completeTaskDifference =
-      currentMonthCompleteTasks.total - lastMonthCompleteTasks.total;
+      const completeTaskCount = currentMonthCompleteTasks.total;
+      const completeTaskDifference =
+        currentMonthCompleteTasks.total - lastMonthCompleteTasks.total;
 
-    const currentMonthOverdueTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.notEqual("status", STATUS.DONE),
-        Query.lessThan("dueDate", now.toISOString()),
-        Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
-      ]
-    );
+      const currentMonthOverdueTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.notEqual("status", STATUS.DONE),
+          Query.lessThan("dueDate", now.toISOString()),
+          Query.greaterThanEqual("$createdAt", currentMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", currentMonthEnd.toISOString()),
+        ]
+      );
 
-    const lastMonthOverdueTasks = await databases.listDocuments<ITask>(
-      DATABASE_ID,
-      COLLECTIONS.TASKS_ID,
-      [
-        Query.equal("projectId", projectId),
-        Query.notEqual("status", STATUS.DONE),
-        Query.lessThan("dueDate", now.toISOString()),
-        Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
-        Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
-      ]
-    );
+      const lastMonthOverdueTasks = await databases.listDocuments<ITask>(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.notEqual("status", STATUS.DONE),
+          Query.lessThan("dueDate", now.toISOString()),
+          Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
+          Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
+        ]
+      );
 
-    const overdueTaskCount = currentMonthOverdueTasks.total;
-    const overdueTaskDifference =
-      currentMonthOverdueTasks.total - lastMonthOverdueTasks.total;
+      const overdueTaskCount = currentMonthOverdueTasks.total;
+      const overdueTaskDifference =
+        currentMonthOverdueTasks.total - lastMonthOverdueTasks.total;
 
-    return c.json({
-      data: {
-        task: {
-          count: taskCount,
-          difference: taskDifference,
-        },
+      return c.json({
+        data: {
+          task: {
+            count: taskCount,
+            difference: taskDifference,
+          },
 
-        assigned: {
-          count: assignedTaskCount,
-          difference: assignedTaskDifference,
-        },
+          assigned: {
+            count: assignedTaskCount,
+            difference: assignedTaskDifference,
+          },
 
-        incomplete: {
-          count: incompleteTaskCount,
-          difference: incompleteTaskDifference,
-        },
+          incomplete: {
+            count: incompleteTaskCount,
+            difference: incompleteTaskDifference,
+          },
 
-        complete: {
-          count: completeTaskCount,
-          difference: completeTaskDifference,
-        },
+          complete: {
+            count: completeTaskCount,
+            difference: completeTaskDifference,
+          },
 
-        overdue: {
-          count: overdueTaskCount,
-          difference: overdueTaskDifference,
-        },
-      } as IAnalytics,
-    });
+          overdue: {
+            count: overdueTaskCount,
+            difference: overdueTaskDifference,
+          },
+        } as IAnalytics,
+      });
+    } catch (error: unknown) {
+      if (error instanceof HTTPException) throw error;
+      throw new APIException(error);
+    }
   });
 export default app;
