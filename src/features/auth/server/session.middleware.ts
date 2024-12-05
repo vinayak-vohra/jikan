@@ -14,8 +14,8 @@ import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 
 import { cookie } from "../auth.cookies";
-import { ERRORS } from "@/constants";
 import { IUser } from "../auth.types";
+import { UnauthorizedError } from "@/lib/exception";
 
 export type SessionContext = {
   Variables: {
@@ -36,7 +36,7 @@ export const sessionMiddleware = createMiddleware<SessionContext>(
 
     const session = getCookie(c, cookie.SESSION);
 
-    if (!session) return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
+    if (!session) throw new UnauthorizedError("Authentication required");
 
     client.setSession(session);
 
