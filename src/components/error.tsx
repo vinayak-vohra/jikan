@@ -1,32 +1,53 @@
 "use client";
-import { AlertTriangleIcon, HouseIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { AlertTriangleIcon, HouseIcon, RotateCwIcon } from "lucide-react";
+import { Card, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
-type ErrorPageProps = {
+type ErrorCardProps = {
+  title?: string;
   message?: string;
+  refetch?: ReturnType<typeof useQuery>["refetch"];
 };
 
-export default function ErrorPage({
-  message = "Something went wrong.",
-}: ErrorPageProps) {
+export default function ErrorCard({
+  title = "Something went wrong",
+  message = "An error occurred while fetching data",
+  refetch,
+}: ErrorCardProps) {
   return (
-    <Card className="w-full max-w-lg border-none shadow-none">
-      <CardHeader className="flex flex-col items-center gap-3">
-        <div className="p-3 rounded-full bg-red-100 text-red-500">
-          <AlertTriangleIcon className="size-8" />
+    <Card className="w-full mx-auto max-w-xl border-none shadow-none">
+      <CardHeader className="">
+        <div className="w-full flex items-center gap-4">
+          <div className="p-3 border border-destructive rounded-full bg-destructive/10">
+            <AlertTriangleIcon className="size-8 text-red-500" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <CardTitle className="text-destructive">{title}</CardTitle>
+            <p className="text-sm text-muted-foreground">{message}</p>
+          </div>
         </div>
-        <CardTitle className="text-xl">{message}</CardTitle>
+        {refetch && (
+          <Button
+            size="sm"
+            className="ml-auto"
+            onClick={() => refetch()}
+            variant="outline"
+          >
+            <RotateCwIcon className="size-4 mr-1" />
+            Retry
+          </Button>
+        )}
+        {!refetch && (
+          <Button size="sm" className="ml-auto" variant="outline" asChild>
+            <Link href="/">
+              <HouseIcon className="size-4 mr-1" />
+              Back to Home
+            </Link>
+          </Button>
+        )}
       </CardHeader>
-      <CardContent className="px-7 flex w-full justify-evenly">
-        <Button variant="outline" asChild>
-          <Link href="/">
-            <HouseIcon className="size-4 mr-1" />
-            Back to Home
-          </Link>
-        </Button>
-      </CardContent>
     </Card>
   );
 }
