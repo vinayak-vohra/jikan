@@ -1,6 +1,7 @@
 import { api } from "@/lib/rpc";
 import { useQuery } from "@tanstack/react-query";
 import { TaskFilters } from "../tasks.types";
+import { CustomError } from "@/types/global.types";
 
 export function useFetchTasks({ workspaceId, ...props }: TaskFilters) {
   return useQuery({
@@ -10,7 +11,8 @@ export function useFetchTasks({ workspaceId, ...props }: TaskFilters) {
         query: { workspaceId, ...props },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch tasks");
+      if (!response.ok)
+        throw new CustomError("Failed to fetch tasks", await response.text());
 
       return (await response.json()).data;
     },

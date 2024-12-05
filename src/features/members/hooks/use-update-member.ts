@@ -6,8 +6,7 @@ import { api } from "@/lib/rpc";
 import { logError } from "@/lib/utils";
 
 type ResponseType = InferResponseType<
-  (typeof api)["members"][":memberId"]["$patch"],
-  200
+  (typeof api)["members"][":memberId"]["$patch"]
 >;
 type RequestType = InferRequestType<
   (typeof api)["members"][":memberId"]["$patch"]
@@ -21,11 +20,10 @@ export function useUpdateMember() {
         param,
         json,
       });
-      const res = await response.json();
 
-      if ("error" in res) throw new Error(res.error);
+      if (!response.ok) throw new Error(await response.text());
 
-      return res;
+      return await response.json();
     },
     onSuccess: () => {
       toast.success("Member role updated");

@@ -8,6 +8,12 @@ import { searchUserInWorkspace } from "../services";
 import { COLLECTIONS, DATABASE_ID, ERRORS } from "@/constants";
 import { Query } from "node-appwrite";
 import { IMember, MemberRoles } from "@/features/members/members.types";
+import { HTTPException } from "hono/http-exception";
+import {
+  APIException,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/lib/exception";
 
 const app = new Hono()
 
@@ -30,9 +36,8 @@ const app = new Hono()
           workspaceId
         );
 
-        if (!member) {
-          return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
-        }
+        // user not a member of the workspace
+        if (!member) throw new UnauthorizedError();
 
         const members = await databases.listDocuments<IMember>(
           DATABASE_ID,
@@ -51,9 +56,9 @@ const app = new Hono()
           })
         );
         return c.json({ data: { ...members, documents: populatedMembers } });
-      } catch (error: any) {
-        console.log(error);
-        return c.json({ error: "Internal Server Error" }, 400);
+      } catch (error: unknown) {
+        if (error instanceof HTTPException) throw error;
+        throw new APIException(error);
       }
     }
   )
@@ -73,16 +78,7 @@ const app = new Hono()
       );
 
       // Check if member exists
-      if (!memberToDelete) {
-        return c.json({ error: ERRORS.MEMBER_NOT_FOUND }, 401);
-      }
-
-      // Fetch all members in the workspace
-      const allMembers = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.MEMBERS_ID,
-        [Query.equal("workspaceId", memberToDelete.workspaceId)]
-      );
+      if (!memberToDelete) throw new NotFoundError("Member not found");
 
       // Check if user is a member of the workspace
       const member = await searchUserInWorkspace(
@@ -92,9 +88,7 @@ const app = new Hono()
       );
 
       // user not a member of the workspace
-      if (!member) {
-        return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
-      }
+      if (!member) throw new UnauthorizedError();
 
       // Get workspace details
       const workspace = await databases.getDocument(
@@ -104,22 +98,27 @@ const app = new Hono()
       );
 
       // Check if user is removing owner
-      if (workspace.userId === memberToDelete.userId) {
-        return c.json({ error: ERRORS.REMOVE_OWNER }, 400);
-      }
+      if (workspace.userId === memberToDelete.userId)
+        throw new UnauthorizedError("Cannot remove workspace owner");
 
       // Check if user is deleting themselves or if they are an admin
       if (
         user.$id !== memberToDelete.userId &&
         member.role !== MemberRoles.ADMIN
-      ) {
-        return c.json({ error: ERRORS.INSUFFICIENT_PERMISSIONS }, 401);
-      }
+      )
+        throw new UnauthorizedError("Need Admin Privileges");
+
+      // Fetch all members in the workspace
+      // const allMembers = await databases.listDocuments(
+      //   DATABASE_ID,
+      //   COLLECTIONS.MEMBERS_ID,
+      //   [Query.equal("workspaceId", memberToDelete.workspaceId)]
+      // );
 
       // Check if the member to delete is the last member
-      if (allMembers.total === 1) {
-        return c.json({ error: ERRORS.REMOVE_LAST_MEMBER }, 400);
-      }
+      // if (allMembers.total === 1) {
+      //   return c.json({ error: ERRORS.REMOVE_LAST_MEMBER }, 400);
+      // }
 
       // Delete member
       await databases.deleteDocument(
@@ -129,9 +128,9 @@ const app = new Hono()
       );
 
       return c.json({ data: { $id: memberToDelete.$id } });
-    } catch (error: any) {
-      console.log(error);
-      return c.json({ error: "Internal Server Error" }, 400);
+    } catch (error: unknown) {
+      if (error instanceof HTTPException) throw error;
+      throw new APIException(error);
     }
   })
 
@@ -155,9 +154,7 @@ const app = new Hono()
         );
 
         // Check if member exists
-        if (!memberToUpdate) {
-          return c.json({ error: ERRORS.MEMBER_NOT_FOUND }, 401);
-        }
+        if (!memberToUpdate) throw new NotFoundError("Member not found");
 
         // Check if user is a member of the workspace
         const member = await searchUserInWorkspace(
@@ -167,9 +164,7 @@ const app = new Hono()
         );
 
         // user not a member of the workspace
-        if (!member) {
-          return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
-        }
+        if (!member) throw new UnauthorizedError();
 
         // Get workspace details
         const workspace = await databases.getDocument(
@@ -178,20 +173,17 @@ const app = new Hono()
           memberToUpdate.workspaceId
         );
 
-        // Check if user is demoting workspace owner
-        if (workspace.userId === memberToUpdate.userId) {
-          return c.json({ error: ERRORS.DEMOTE_OWNER }, 400);
-        }
-
         // Check if user is admin or not
-        if (member.role !== MemberRoles.ADMIN) {
-          return c.json({ error: ERRORS.INSUFFICIENT_PERMISSIONS }, 401);
-        }
+        if (member.role !== MemberRoles.ADMIN)
+          throw new UnauthorizedError("Need Admin Privileges");
+
+        // Check if user is demoting workspace owner
+        if (workspace.userId === memberToUpdate.userId)
+          throw new UnauthorizedError("Cannot demote workspace owner");
 
         // Check if user is demoting themselves
-        if (user.$id === memberToUpdate.userId) {
-          return c.json({ error: ERRORS.DEMOTE_SELF }, 400);
-        }
+        if (user.$id === memberToUpdate.userId)
+          throw new UnauthorizedError("Cannot demote yourself");
 
         // Update member
         await databases.updateDocument(
@@ -202,9 +194,9 @@ const app = new Hono()
         );
 
         return c.json({ data: { $id: memberToUpdate.$id } });
-      } catch (error: any) {
-        console.log(error);
-        return c.json({ error: "Internal Server Error" }, 400);
+      } catch (error: unknown) {
+        if (error instanceof HTTPException) throw error;
+        throw new APIException(error);
       }
     }
   );

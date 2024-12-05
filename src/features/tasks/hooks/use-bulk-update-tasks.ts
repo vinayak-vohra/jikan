@@ -19,13 +19,13 @@ export function useBulkUpdateTask() {
     mutationFn: async ({ json }) => {
       const response = await api["tasks"]["bulk-update"]["$post"]({ json });
 
-      if (!response.ok) throw new Error("Failed to update tasks");
+      if (!response.ok) throw new Error(await response.text());
 
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       // toast.success("Tasks updated");
-      console.log("Kanban: bulk update success");
+      console.log(`Kanban: ${data.tasksUpdated} tasks updated`);
       qc.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: logError,

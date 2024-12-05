@@ -20,7 +20,7 @@ export function useDeleteWorkspace() {
       const response = await api["workspaces"][":workspaceId"]["$delete"]({
         param,
       });
-      if (!response.ok) throw new Error("Failed to delete workspace");
+      if (!response.ok) throw new Error(await response.text());
       return await response.json();
     },
     onSuccess: ({ data }) => {
