@@ -14,7 +14,7 @@ export function useCreateTask() {
     mutationFn: async ({ json }) => {
       const response = await api["tasks"]["$post"]({ json });
 
-      if (!response.ok) throw new Error("Failed to create task");
+      if (!response.ok) throw new Error(await response.text());
 
       return await response.json();
     },

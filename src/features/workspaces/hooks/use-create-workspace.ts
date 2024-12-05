@@ -14,7 +14,7 @@ export function useCreateWorkspace() {
     mutationFn: async ({ form }) => {
       const response = await api["workspaces"]["$post"]({ form });
 
-      if (!response.ok) throw new Error("Failed to create workspace");
+      if (!response.ok) throw new Error(await response.text());
 
       return await response.json();
     },

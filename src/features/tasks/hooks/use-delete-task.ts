@@ -22,7 +22,7 @@ export function useDeleteTask() {
     mutationFn: async ({ param }) => {
       const response = await api["tasks"][":taskId"]["$delete"]({ param });
 
-      if (!response.ok) throw new Error("Failed to delete task");
+      if (!response.ok) throw new Error(await response.text());
 
       return await response.json();
     },
