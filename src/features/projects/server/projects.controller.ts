@@ -182,7 +182,21 @@ const app = new Hono()
       );
 
       if (!member || member.role !== MemberRoles.ADMIN)
-        return c.json({ error: ERRORS.UNAUTHORIZED }, 401);
+        throw new UnauthorizedError("Need Admin Privileges");
+
+      // get all tasks in the project
+      const tasks = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [Query.equal("projectId", projectId)]
+      );
+
+      // delete tasks
+      await Promise.all(
+        tasks.documents.map(async (task) =>
+          databases.deleteDocument(DATABASE_ID, COLLECTIONS.TASKS_ID, task.$id)
+        )
+      );
 
       // delete project
       await databases.deleteDocument(

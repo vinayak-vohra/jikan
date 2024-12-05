@@ -206,7 +206,57 @@ const app = new Hono()
 
     // only admin can delete workspace
     if (!member || member.role !== MemberRoles.ADMIN)
-      throw new Error("Unauthorized");
+      throw new UnauthorizedError("Need Admin Privileges");
+
+      // get all tasks in the workspace
+      const tasks = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.TASKS_ID,
+        [Query.equal("workspaceId", workspaceId)]
+      );
+
+      // delete tasks
+      await Promise.all(
+        tasks.documents.map(async (task) =>
+          databases.deleteDocument(DATABASE_ID, COLLECTIONS.TASKS_ID, task.$id)
+        )
+      );
+
+      // get all members in the workspace
+      const members = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.MEMBERS_ID,
+        [Query.equal("workspaceId", workspaceId)]
+      );
+
+      // delete members
+      await Promise.all(
+        members.documents.map(async (member) =>
+          databases.deleteDocument(
+            DATABASE_ID,
+            COLLECTIONS.MEMBERS_ID,
+            member.$id
+          )
+        )
+      );
+
+      // get projects in the workspace
+      const projects = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.PROJECTS_ID,
+        [Query.equal("workspaceId", workspaceId)]
+      );
+
+      // delete projects
+      await Promise.all(
+        projects.documents.map(async (project) =>
+          databases.deleteDocument(
+            DATABASE_ID,
+            COLLECTIONS.PROJECTS_ID,
+            project.$id
+          )
+        )
+      );
 
     // delete workspace
     await databases.deleteDocument(
