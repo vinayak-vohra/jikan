@@ -200,7 +200,7 @@ export default function CreateWorkpaceForm(props: CreateWorkpaceFormProps) {
           variant="primary"
           disabled={isPending}
         >
-          Create Project
+          Create Workspace
         </Button>
       </CardFooter>
     </Card>
