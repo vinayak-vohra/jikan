@@ -6,8 +6,7 @@ import { api } from "@/lib/rpc";
 import { logError } from "@/lib/utils";
 
 type ResponseType = InferResponseType<
-  (typeof api)["members"][":memberId"]["$delete"],
-  200
+  (typeof api)["members"][":memberId"]["$delete"]
 >;
 type RequestType = InferRequestType<
   (typeof api)["members"][":memberId"]["$delete"]
@@ -18,11 +17,10 @@ export function useDeleteMember() {
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async ({ param }) => {
       const response = await api["members"][":memberId"]["$delete"]({ param });
-      const res = await response.json();
 
-      if ("error" in res) throw new Error(res.error);
+      if (!response.ok) throw new Error(await response.text());
 
-      return res;
+      return await response.json();
     },
     onSuccess: () => {
       toast.success("Member removed");

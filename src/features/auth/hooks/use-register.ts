@@ -19,7 +19,7 @@ export const useRegister = () => {
     mutationFn: async ({ json }) => {
       const response = await api["auth"]["register"]["$post"]({ json });
 
-      if (!response.ok) throw new Error("Failed to register");
+      if (!response.ok) throw new Error(await response.text());
 
       return await response.json();
     },

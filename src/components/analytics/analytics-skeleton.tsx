@@ -2,7 +2,7 @@ import { Skeleton } from "../ui/skeleton";
 
 export function AnalyticsSkeleton() {
   return (
-    <div className="w-full flex flex-row gap-2">
+    <div className="w-full max-w-screen-xl overflow-x-auto flex flex-row gap-2">
       {[...Array(5)].map((_, i) => (
         <div
           key={i}

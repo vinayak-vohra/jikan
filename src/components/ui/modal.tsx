@@ -29,7 +29,7 @@ export function ResponsiveModal(props: ResponsiveModalProps) {
     <Drawer open={props.open} onOpenChange={props.onOpenChange}>
       <DrawerTitle className="hidden">Create Workspace</DrawerTitle>
       <DrawerContent aria-describedby="">
-        <div className="overflow-y-auto hide-scrollbar max-h-[85vh]">
+        <div className="overflow-y-auto hide-scrollbar max-h-[95vh]">
           {props.children}
         </div>
       </DrawerContent>

@@ -40,7 +40,8 @@ export type TaskUpdatePayload = Pick<ITask, "$id" | "status" | "position">;
 export interface TaskFilters {
   workspaceId: string;
   projectId?: string;
-  status?: STATUS;
+  status?: STATUS | STATUS[];
+  notStatus?: STATUS | STATUS[];
   search?: string;
   assigneeId?: string;
   duDate?: string;

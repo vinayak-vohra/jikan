@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDistanceToNow, formatDistanceToNowStrict } from "date-fns";
-import { CalendarIcon, PlusIcon, UserRoundCogIcon } from "lucide-react";
+import { CalendarIcon, ExternalLinkIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 
 import Analytics, { AnalyticsSkeleton } from "@/components/analytics";
@@ -12,13 +12,17 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton as Skelly } from "@/components/ui/skeleton";
 import ProjectAvatar from "@/features/projects/components/project-avatar";
 import { useFetchProjects, useProjectModal } from "@/features/projects/hooks";
-import { useCreateTaskModal, useFetchTasks } from "@/features/tasks/hooks";
+import { useFetchTasks } from "@/features/tasks/hooks";
 import {
   useWorkspaceId,
   useFetchWorkspaceAnalytics,
 } from "@/features/workspaces/hooks";
 import { useFetchMembers } from "@/features/members/hooks";
 import MemberAvatar from "@/features/members/components/member-avatar";
+import { useCreateTaskModal } from "@/providers/task-modal-provider";
+import { Badge } from "@/components/ui/badge";
+import { STATUS } from "@/features/tasks/tasks.types";
+import ErrorCard from "@/components/error";
 
 export default function WorkspaceIdClient() {
   return (
@@ -40,10 +44,22 @@ export default function WorkspaceIdClient() {
 // Workspace Analytics
 function WorkspaceAnalytics() {
   const workspaceId = useWorkspaceId();
-  const { data: analytics, isLoading } =
-    useFetchWorkspaceAnalytics(workspaceId);
+  const {
+    data: analytics,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchWorkspaceAnalytics(workspaceId);
 
   if (isLoading) return <AnalyticsSkeleton />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!analytics) return null;
 
   return <Analytics data={analytics} />;
@@ -52,10 +68,26 @@ function WorkspaceAnalytics() {
 // Tasks
 function TaskList() {
   const workspaceId = useWorkspaceId();
-  const { data: tasks, isLoading } = useFetchTasks({ workspaceId });
+  const {
+    data: tasks,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchTasks({
+    workspaceId,
+    notStatus: STATUS.DONE,
+  });
   const { openModal } = useCreateTaskModal();
 
   if (isLoading) return <Skeleton variant="tasks" />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!tasks) return null;
 
   return (
@@ -63,9 +95,18 @@ function TaskList() {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <p className="text-base font-semibold">Tasks ({tasks.total})</p>
-          <Button variant="outline" size="icon" onClick={openModal}>
-            <PlusIcon className="size-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/workspaces/${workspaceId}/tasks`}>
+                <ExternalLinkIcon className="size-4" />
+                <span className="hidden md:block">&nbsp;View All</span>
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => openModal()}>
+              <PlusIcon className="size-4" />
+              <span className="hidden md:block">&nbsp;New Task</span>
+            </Button>
+          </div>
         </div>
         <Separator className="my-4" />
         <ScrollArea className="border">
@@ -74,24 +115,27 @@ function TaskList() {
               <li key={task.$id}>
                 <Link href={`/workspaces/${workspaceId}/tasks/${task.$id}`}>
                   <Card className="shadow-none rounded-none md:rounded-none hover:shadow-sm hover:bg-foreground/5  transition">
-                    <CardContent className="px-4 py-2 space-y-2">
-                      <p className="text-base font-medium truncate">
-                        {task.name}
-                      </p>
-                      <div className="flex items-center text-xs text-muted-foreground gap-x-1">
-                        <ProjectAvatar
-                          name={task.project.name}
-                          image={task.project.image}
-                          size={5}
-                          className="text-[10px]"
-                        />
-                        <p>{task.project.name}</p>
-                        <div className="size-1 mx-1 bg-muted-foreground rounded-full" />
-                        <CalendarIcon className="size-4" />
-                        <span className="truncate">
-                          {formatDistanceToNow(task.dueDate)}
-                        </span>
+                    <CardContent className="flex items-start justify-between px-4 py-2 space-y-2">
+                      <div className="flex flex-col">
+                        <p className="text-base font-medium truncate">
+                          {task.name}
+                        </p>
+                        <div className="flex items-center text-xs text-muted-foreground gap-x-1">
+                          <ProjectAvatar
+                            name={task.project.name}
+                            image={task.project.image}
+                            size={5}
+                            className="text-[10px]"
+                          />
+                          <p>{task.project.name}</p>
+                          <div className="size-1 mx-1 bg-muted-foreground rounded-full" />
+                          <CalendarIcon className="size-4" />
+                          <span className="truncate">
+                            {formatDistanceToNow(task.dueDate)}
+                          </span>
+                        </div>
                       </div>
+                      <Badge variant={task.status}>{task.status}</Badge>
                     </CardContent>
                   </Card>
                 </Link>
@@ -111,10 +155,23 @@ function TaskList() {
 // Projects
 function Projects() {
   const workspaceId = useWorkspaceId();
-  const { data: projects, isLoading } = useFetchProjects(workspaceId);
+  const {
+    data: projects,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchProjects(workspaceId);
   const { openModal } = useProjectModal();
 
   if (isLoading) return <Skeleton variant="projects" />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!projects) return null;
 
   return (
@@ -122,12 +179,13 @@ function Projects() {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <p className="text-base font-semibold">Projects ({projects.total})</p>
-          <Button variant="outline" size="icon" onClick={openModal}>
+          <Button variant="outline" size="sm" onClick={openModal}>
             <PlusIcon className="size-4" />
+            <span className="hidden md:block">&nbsp;New Project</span>
           </Button>
         </div>
         <Separator className="my-4" />
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <ul className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 gap-2">
           {projects.documents.map((project) => (
             <li key={project.$id}>
               <Link href={`/workspaces/${workspaceId}/projects/${project.$id}`}>
@@ -166,9 +224,22 @@ function Projects() {
 // Members
 function Members() {
   const workspaceId = useWorkspaceId();
-  const { data: members, isLoading } = useFetchMembers(workspaceId);
+  const {
+    data: members,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchMembers(workspaceId);
 
   if (isLoading) return <Skeleton variant="members" />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!members) return null;
 
   return (
@@ -176,9 +247,10 @@ function Members() {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <p className="text-base font-semibold">Members ({members.total})</p>
-          <Button variant="outline" size="icon" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href={`/workspaces/${workspaceId}/members`}>
-              <UserRoundCogIcon className="size-4" />
+              <ExternalLinkIcon className="size-4" />
+              <span className="hidden md:block">&nbsp;View All</span>
             </Link>
           </Button>
         </div>
@@ -217,7 +289,7 @@ type TSkellyVariant = {
 };
 const SkellyVariant: TSkellyVariant = {
   members: (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 py-4 gap-2 border-t">
+    <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 py-4 gap-2 border-t">
       {[...Array(3)].map((_, i) => (
         <div
           key={i}
@@ -231,13 +303,13 @@ const SkellyVariant: TSkellyVariant = {
     </div>
   ),
   projects: (
-    <div className="grid grid-cols-1 lg:grid-cols-2 py-4 gap-2 border-t">
+    <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 py-4 gap-2 border-t">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="p-4 rounded-md flex border items-center gap-2">
           <Skelly className="size-8 rounded-full" />
           <div className="flex flex-col gap-y-1">
-            <Skelly className="h-5 w-40 rounded-full" />
-            <Skelly className="h-4 w-20 rounded-full" />
+            <Skelly className="h-5 w-20 lg:w-40 rounded-full" />
+            <Skelly className="h-4 w-10 lg:w-20 rounded-full" />
           </div>
         </div>
       ))}
@@ -264,7 +336,10 @@ function Skeleton({ variant }: { variant: keyof TSkellyVariant }) {
       <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between">
           <Skelly className="w-32 h-6" />
-          <Skelly className="size-8" />
+          <div className="flex gap-2">
+            {variant === "tasks" && <Skelly className="h-8 w-8 md:w-20" />}
+            <Skelly className="h-8 w-8 md:w-20" />
+          </div>
         </div>
         <div className="my-4" />
         {SkellyVariant[variant]}

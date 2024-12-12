@@ -1,10 +1,9 @@
 "use client";
 
-import { PencilIcon, PlusIcon } from "lucide-react";
+import { PencilIcon, PlusIcon, RotateCwIcon } from "lucide-react";
 import Link from "next/link";
 
 import Analytics, { AnalyticsSkeleton } from "@/components/analytics";
-import ErrorPage from "@/components/error";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import ProjectAvatar from "@/features/projects/components/project-avatar";
@@ -15,17 +14,31 @@ import {
 } from "@/features/projects/hooks";
 import TaskViewSwitcher from "@/features/tasks/components/task-view-switcher";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
-import { useCreateTaskModal } from "@/features/tasks/hooks";
+import { useCreateTaskModal } from "@/providers/task-modal-provider";
+import ErrorCard from "@/components/error";
 
 export default function ProjectIdClient() {
   const projectId = useProjectId();
   const workspaceId = useWorkspaceId();
   const { openModal } = useCreateTaskModal();
 
-  const { data: project, isLoading } = useFetchProjectById(projectId);
+  const {
+    data: project,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchProjectById(projectId);
 
   if (isLoading) return <Loader />;
-  if (!project) return <ErrorPage message="Project not found" />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
+  if (!project) return null;
 
   const projectSettingsHref = `/workspaces/${workspaceId}/projects/${projectId}/settings`;
 
@@ -44,7 +57,7 @@ export default function ProjectIdClient() {
               <span className="hidden md:block">&nbsp;Edit</span>
             </Link>
           </Button>
-          <Button onClick={openModal} variant="primary" size="sm">
+          <Button onClick={() => openModal()} variant="primary" size="sm">
             <PlusIcon className="size-4" />
             <span className="hidden md:block">&nbsp;New</span>
           </Button>

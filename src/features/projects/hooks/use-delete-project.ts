@@ -22,7 +22,7 @@ export function useDeleteProject() {
       const response = await api["projects"][":projectId"]["$delete"]({
         param,
       });
-      if (!response.ok) throw new Error("Failed to delete project");
+      if (!response.ok) throw new Error(await response.text());
       return await response.json();
     },
     onSuccess: ({ data }) => {

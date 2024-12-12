@@ -2,7 +2,8 @@
 
 import { ResponsiveModal } from "@/components/ui/modal";
 import CreateTaskForm from "./create-task-form";
-import { useCreateTaskModal } from "../hooks/use-create-task-modal";
+import { useCreateTaskModal } from "@/providers/task-modal-provider";
+
 
 
 export default function CreateTaskModal() {

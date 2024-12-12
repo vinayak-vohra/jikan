@@ -35,7 +35,8 @@ export default function Projects() {
           </TooltipContent>
         </Tooltip>
       </div>
-      {!projects?.total && (
+      {!projects && <span className="text-destructive text-center">Failed to fetch</span>}
+      {projects?.total === 0 && (
         <p className="text-muted-foreground text-sm">No projects found</p>
       )}
       {projects?.documents.map((project) => {

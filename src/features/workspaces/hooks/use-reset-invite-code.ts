@@ -22,7 +22,7 @@ export function useResetInviteCode() {
       const response = await api["workspaces"][":workspaceId"][
         "reset-invite-code"
       ]["$post"]({ param });
-      if (!response.ok) throw new Error("Failed to reset invite code");
+      if (!response.ok) throw new Error(await response.text());
       return await response.json();
     },
     onSuccess: ({ data }) => {

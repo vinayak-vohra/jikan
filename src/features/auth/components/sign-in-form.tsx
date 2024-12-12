@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { useLogin } from "@/features/auth/hooks";
 import { loginSchema } from "@/features/auth/auth.schemas";
+import { toast } from "sonner";
 
 export default function SignInForm() {
   const { mutate, isPending } = useLogin();
@@ -91,11 +92,21 @@ export default function SignInForm() {
         <Separator />
       </div>
       <CardContent className="flex flex-col px-7 py-5 gap-y-4">
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          onClick={() =>
+            toast.warning("Google login not supported yet.", { id: 0 })
+          }
+        >
           <FcGoogle className="mr-2 size-5" />
           Login with Google
         </Button>
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          onClick={() =>
+            toast.warning("GitHub login not supported yet.", { id: 0 })
+          }
+        >
           <FaGithub className="mr-2 size-5" />
           Login with Github
         </Button>

@@ -1,4 +1,5 @@
 import Logo from "@/components/logo";
+import ThemeSwitcher from "@/components/theme-switcher";
 import UserAvatar from "@/features/auth/components/user-avatar";
 import { PropsWithChildren } from "@/types/global.types";
 
@@ -8,7 +9,10 @@ export default function StandaloneLayout(props: PropsWithChildren) {
       <div className="mx-auto max-w-screen-2xl">
         <nav className="flex bg-background shadow justify-between items-center h-16 p-4">
           <Logo />
-          <UserAvatar />
+          <div className="flex items-center gap-4">
+            <ThemeSwitcher />
+            <UserAvatar />
+          </div>
         </nav>
         <div className="flex flex-col items-center justify-center py-2">
           {props.children}

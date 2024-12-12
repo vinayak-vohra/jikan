@@ -1,4 +1,5 @@
 import { api } from "@/lib/rpc";
+import { CustomError } from "@/types/global.types";
 import { useQuery } from "@tanstack/react-query";
 
 export function useFetchTaskById(taskId: string) {
@@ -9,7 +10,8 @@ export function useFetchTaskById(taskId: string) {
         param: { taskId },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch task");
+      if (!response.ok) 
+        throw new CustomError("Failed to fetch task", await response.text());
 
       return (await response.json()).data;
     },

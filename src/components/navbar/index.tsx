@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Mobile from "../sidebar/mobile";
 
 import UserAvatar from "@/features/auth/components/user-avatar";
+import ThemeSwitcher from "../theme-switcher";
 
 const pages = [
   {
@@ -39,7 +40,10 @@ export default function Navbar() {
         <p className="text-muted-foreground">{description}</p>
       </div>
       <Mobile />
-      <UserAvatar />
+      <div className="flex items-center gap-4">
+        <ThemeSwitcher />
+        <UserAvatar />
+      </div>
     </nav>
   );
 }

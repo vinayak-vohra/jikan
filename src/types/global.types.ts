@@ -1,3 +1,20 @@
+import "@tanstack/react-query";
+
+export class CustomError extends Error {
+  title: string;
+  constructor(title: string, message: string) {
+    super(message);
+    this.title = title;
+    this.name = "CustomError";
+  }
+}
+
+declare module "@tanstack/react-query" {
+  interface Register {
+    defaultError: CustomError;
+  }
+}
+
 export interface PropsWithChildren {
   children: React.ReactNode;
 }

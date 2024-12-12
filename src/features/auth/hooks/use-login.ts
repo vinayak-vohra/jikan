@@ -6,16 +6,9 @@ import { toast } from "sonner";
 import { logError } from "@/lib/utils";
 import { api } from "@/lib/rpc";
 
-type RequestType = InferRequestType<typeof api["auth"]["login"]["$post"]>;
-type ResponseType = InferResponseType<typeof api["auth"]["login"]["$post"]>;
+type RequestType = InferRequestType<(typeof api)["auth"]["login"]["$post"]>;
+type ResponseType = InferResponseType<(typeof api)["auth"]["login"]["$post"]>;
 
-/**
- * Custom hook for handling user login using React Query's mutation.
- *
- * @returns The mutation object containing the login mutation function,
- *          and various properties related to the mutation state
- *          (e.g., isLoading, isError).
- */
 export function useLogin() {
   const qc = useQueryClient();
   const router = useRouter();
@@ -25,8 +18,7 @@ export function useLogin() {
     mutationFn: async ({ json }) => {
       const response = await api["auth"]["login"]["$post"]({ json });
 
-      if (!response.ok) throw new Error(response.statusText);
-
+      if (!response.ok) throw new Error(await response.text());
       return await response.json();
     },
     onSuccess: () => {
@@ -35,7 +27,7 @@ export function useLogin() {
       // TODO: redirect based on url query params
       // const next = searchParams.get("next");
       // if (next) router.push(next);
-      
+
       router.refresh();
       qc.invalidateQueries({ queryKey: ["current"] });
     },

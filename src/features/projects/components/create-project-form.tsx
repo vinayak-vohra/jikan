@@ -1,6 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageUpIcon } from "lucide-react";
+import { Grid2x2PlusIcon, ImageUpIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
@@ -9,7 +9,13 @@ import { z } from "zod";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -19,7 +25,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { createProjectSchema } from "@/features/projects/projects.schemas";
 import { useCreateProject } from "@/features/projects/hooks";
 import { useWorkspaceId } from "@/features/workspaces/hooks";
@@ -74,18 +79,17 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
   };
 
   return (
-    <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7 max-md:py-3">
-        <CardTitle className="text-xl font-bold">
-          Create a new Project
-        </CardTitle>
+    <Card className="w-full lg:px-4 max-w-lg mx-auto border-none shadow-none">
+      <CardHeader className="flex pb-4 max-md:pt-4 flex-col items-center gap-3">
+        <div className="p-3 rounded-full bg-blue-100 text-blue-500">
+          <Grid2x2PlusIcon className="size-8" />
+        </div>
+        <CardTitle className="text-xl">Create New Project</CardTitle>
       </CardHeader>
-      <div className="px-7">
-        <Separator />
-      </div>
-      <CardContent className="p-7 max-md:py-3">
+      <CardContent className="px-6 pt-2 pb-4">
         <Form {...form}>
           <form
+            id="create-project-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-y-4"
           >
@@ -173,25 +177,29 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
                 </div>
               )}
             />
-            <div className="py-3 max-md:py-1">
-              <Separator />
-            </div>
-            <div className="flex items-center justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={props.onCancel}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" disabled={isPending}>
-                Create Project
-              </Button>
-            </div>
           </form>
         </Form>
       </CardContent>
+      <CardFooter className="flex items-center justify-between py-4 border-t">
+        <Button
+          type="button"
+          variant="destructive"
+          disabled={isPending}
+          className="w-36"
+          onClick={props.onCancel}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          className="w-36"
+          form="create-project-form"
+          variant="primary"
+          disabled={isPending}
+        >
+          Create Project
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
