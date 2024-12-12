@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { api } from "@/lib/rpc";
+import { CustomError } from "@/types/global.types";
 
 export function useFetchWorkspaceInfo(workspaceId: string) {
   const query = useQuery({
@@ -10,12 +11,11 @@ export function useFetchWorkspaceInfo(workspaceId: string) {
         param: { workspaceId },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch workspace");
+      if (!response.ok) 
+        throw new CustomError("Failed to fetch workspace", await response.text());
 
       return (await response.json()).data;
     },
-    retry: false,
-    refetchOnWindowFocus: false,
   });
   return query;
 }

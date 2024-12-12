@@ -22,6 +22,7 @@ import MemberAvatar from "@/features/members/components/member-avatar";
 import { useCreateTaskModal } from "@/providers/task-modal-provider";
 import { Badge } from "@/components/ui/badge";
 import { STATUS } from "@/features/tasks/tasks.types";
+import ErrorCard from "@/components/error";
 
 export default function WorkspaceIdClient() {
   return (
@@ -43,10 +44,22 @@ export default function WorkspaceIdClient() {
 // Workspace Analytics
 function WorkspaceAnalytics() {
   const workspaceId = useWorkspaceId();
-  const { data: analytics, isLoading } =
-    useFetchWorkspaceAnalytics(workspaceId);
+  const {
+    data: analytics,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchWorkspaceAnalytics(workspaceId);
 
   if (isLoading) return <AnalyticsSkeleton />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!analytics) return null;
 
   return <Analytics data={analytics} />;
@@ -55,13 +68,26 @@ function WorkspaceAnalytics() {
 // Tasks
 function TaskList() {
   const workspaceId = useWorkspaceId();
-  const { data: tasks, isLoading } = useFetchTasks({
+  const {
+    data: tasks,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchTasks({
     workspaceId,
     notStatus: STATUS.DONE,
   });
   const { openModal } = useCreateTaskModal();
 
   if (isLoading) return <Skeleton variant="tasks" />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!tasks) return null;
 
   return (
@@ -129,10 +155,23 @@ function TaskList() {
 // Projects
 function Projects() {
   const workspaceId = useWorkspaceId();
-  const { data: projects, isLoading } = useFetchProjects(workspaceId);
+  const {
+    data: projects,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchProjects(workspaceId);
   const { openModal } = useProjectModal();
 
   if (isLoading) return <Skeleton variant="projects" />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!projects) return null;
 
   return (
@@ -146,7 +185,7 @@ function Projects() {
           </Button>
         </div>
         <Separator className="my-4" />
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <ul className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 gap-2">
           {projects.documents.map((project) => (
             <li key={project.$id}>
               <Link href={`/workspaces/${workspaceId}/projects/${project.$id}`}>
@@ -185,9 +224,22 @@ function Projects() {
 // Members
 function Members() {
   const workspaceId = useWorkspaceId();
-  const { data: members, isLoading } = useFetchMembers(workspaceId);
+  const {
+    data: members,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchMembers(workspaceId);
 
   if (isLoading) return <Skeleton variant="members" />;
+  if (error)
+    return (
+      <ErrorCard
+        title={error.title}
+        message={error.message}
+        refetch={refetch}
+      />
+    );
   if (!members) return null;
 
   return (
@@ -251,13 +303,13 @@ const SkellyVariant: TSkellyVariant = {
     </div>
   ),
   projects: (
-    <div className="grid grid-cols-1 lg:grid-cols-2 py-4 gap-2 border-t">
+    <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 py-4 gap-2 border-t">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="p-4 rounded-md flex border items-center gap-2">
           <Skelly className="size-8 rounded-full" />
           <div className="flex flex-col gap-y-1">
-            <Skelly className="h-5 w-40 rounded-full" />
-            <Skelly className="h-4 w-20 rounded-full" />
+            <Skelly className="h-5 w-20 lg:w-40 rounded-full" />
+            <Skelly className="h-4 w-10 lg:w-20 rounded-full" />
           </div>
         </div>
       ))}

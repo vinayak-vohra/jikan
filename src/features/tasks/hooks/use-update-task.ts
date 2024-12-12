@@ -20,7 +20,7 @@ export function useUpdateTask() {
     mutationFn: async ({ json, param }) => {
       const response = await api["tasks"][":taskId"]["$patch"]({ json, param });
 
-      if (!response.ok) throw new Error("Failed to update task");
+      if (!response.ok) throw new Error(await response.text());
 
       return await response.json();
     },

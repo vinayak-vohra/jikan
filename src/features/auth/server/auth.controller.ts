@@ -9,6 +9,8 @@ import { cookie } from "../auth.cookies";
 import { loginSchema, registerSchema } from "../auth.schemas";
 
 import { createAdminClient } from "@/lib/appwrite";
+import { APIException } from "@/lib/exception";
+import { HTTPException } from "hono/http-exception";
 
 const cookieOptions: CookieOptions = {
   path: "/",
@@ -23,30 +25,51 @@ const app = new Hono()
 
   // Handle Sign In request
   .post("/login", zValidator("json", loginSchema), async (c) => {
-    const { email, password } = c.req.valid("json");
+    try {
+      // extract email and password from request body
+      const { email, password } = c.req.valid("json");
 
-    const { account } = await createAdminClient();
+      // create an admin client
+      const { account } = await createAdminClient();
 
-    const session = await account.createEmailPasswordSession(email, password);
+      // create a session using the email and password
+      const session = await account.createEmailPasswordSession(email, password);
 
-    setCookie(c, cookie.SESSION, session.secret, cookieOptions);
+      // set the session cookie
+      setCookie(c, cookie.SESSION, session.secret, cookieOptions);
 
-    return c.json({ success: true });
+      // return success response
+      return c.json({ success: true });
+    } catch (error: unknown) {
+      if (error instanceof HTTPException) throw error;
+      throw new APIException(error);
+    }
   })
 
   // handle Sign Up request
   .post("/register", zValidator("json", registerSchema), async (c) => {
-    const { email, name, password } = c.req.valid("json");
+    try {
+      // extract email, name and password from request body
+      const { email, name, password } = c.req.valid("json");
 
-    const { account } = await createAdminClient();
+      // create an admin client
+      const { account } = await createAdminClient();
 
-    await account.create(ID.unique(), email, password, name);
+      // create a new account
+      await account.create(ID.unique(), email, password, name);
 
-    const session = await account.createEmailPasswordSession(email, password);
+      // create a session using the email and password
+      const session = await account.createEmailPasswordSession(email, password);
 
-    setCookie(c, cookie.SESSION, session.secret, cookieOptions);
+      // set the session cookie
+      setCookie(c, cookie.SESSION, session.secret, cookieOptions);
 
-    return c.json({ success: true });
+      // return success response
+      return c.json({ success: true });
+    } catch (error: unknown) {
+      if (error instanceof HTTPException) throw error;
+      throw new APIException(error);
+    }
   })
 
   // get current user details
@@ -54,11 +77,16 @@ const app = new Hono()
 
   // handle logout
   .post("/logout", sessionMiddleware, async (c) => {
-    deleteCookie(c, cookie.SESSION);
+    try {
+      deleteCookie(c, cookie.SESSION);
 
-    const account = c.get("account");
-    await account.deleteSession("current");
-
-    return c.json({ success: true });
+      const account = c.get("account");
+      await account.deleteSession("current");
+      return c.json({ success: true });
+    } catch (error: unknown) {
+      if (error instanceof HTTPException) throw error;
+      throw new APIException(error);
+    }
   });
+
 export default app;

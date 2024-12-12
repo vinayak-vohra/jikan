@@ -2,26 +2,17 @@ import { COLLECTIONS, DATABASE_ID } from "@/constants";
 import { searchUserInWorkspace } from "@/features/members/services";
 import { createSessionClient } from "@/lib/appwrite";
 import { IProject } from "@/features/projects/projects.types";
+import { IUser } from "@/features/auth/auth.types";
 
-/**
- * Retrieves a project by its ID.
- *
- * @param projectId - The ID of the project to retrieve.
- * @returns The project document if found and the user is a member, otherwise null.
- */
-export async function getProjectById(projectId: string) {
+export async function getProjectById(projectId: string, user: IUser) {
   try {
-    const { account, databases } = await createSessionClient();
-
-    const user = await account.get();
+    const { databases } = await createSessionClient();
 
     const project = await databases.getDocument<IProject>(
       DATABASE_ID,
       COLLECTIONS.PROJECTS_ID,
       projectId
     );
-
-    if (!project) return null;
 
     const member = await searchUserInWorkspace(
       databases,

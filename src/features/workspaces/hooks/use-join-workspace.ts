@@ -25,7 +25,7 @@ export function useJoinWorkspace() {
           json,
         }
       );
-      if (!response.ok) throw new Error("Failed to join workspace");
+      if (!response.ok) throw new Error(await response.text());
       return await response.json();
     },
     onSuccess: ({ data }) => {

@@ -1,15 +1,9 @@
 "use server";
 
 import { createSessionClient } from "@/lib/appwrite";
+import { IUser } from "../auth.types";
 
-/**
- * Retrieves the current user's account information.
- * If an error occurs while fetching the account details, the function returns `null`.
- *
- * @returns A promise that resolves to the account information of the current user if found,
- *          or `null` if an error occurs during the retrieval process.
- */
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<IUser | null> {
   try {
     const { account } = await createSessionClient();
     return await account.get();
